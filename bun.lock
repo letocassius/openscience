@@ -123,7 +123,7 @@
     },
     "frontend/docs": {
       "name": "@synsci/docs",
-      "version": "1.2.2",
+      "version": "1.2.3",
       "dependencies": {
         "@astrojs/cloudflare": "12.6.3",
         "@astrojs/markdown-remark": "6.3.1",
@@ -154,7 +154,7 @@
     },
     "frontend/ui": {
       "name": "@synsci/ui",
-      "version": "1.2.2",
+      "version": "1.2.3",
       "dependencies": {
         "@kobalte/core": "catalog:",
         "@pierre/diffs": "catalog:",
@@ -196,7 +196,7 @@
     },
     "frontend/workspace": {
       "name": "@synsci/workspace",
-      "version": "1.2.2",
+      "version": "1.2.3",
       "dependencies": {
         "3dmol": "^2.5.5",
         "@kobalte/core": "catalog:",
@@ -253,14 +253,14 @@
     },
     "tooling/launcher": {
       "name": "synsci",
-      "version": "1.2.4",
+      "version": "1.2.3",
       "bin": {
         "synsci": "bin/synsci.mjs",
       },
     },
     "tooling/plugin": {
       "name": "@synsci/plugin",
-      "version": "1.2.2",
+      "version": "1.2.3",
       "dependencies": {
         "@synsci/sdk": "workspace:*",
         "zod": "catalog:",
@@ -280,7 +280,7 @@
     },
     "tooling/sdk/js": {
       "name": "@synsci/sdk",
-      "version": "1.2.2",
+      "version": "1.2.3",
       "devDependencies": {
         "@hey-api/openapi-ts": "0.90.10",
         "@tsconfig/node22": "catalog:",
@@ -291,7 +291,7 @@
     },
     "tooling/util": {
       "name": "@synsci/util",
-      "version": "1.2.2",
+      "version": "1.2.3",
       "dependencies": {
         "zod": "catalog:",
       },
