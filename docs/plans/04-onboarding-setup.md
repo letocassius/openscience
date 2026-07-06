@@ -29,6 +29,7 @@ The terminal `cli/onboard.ts` is the fork to mirror: `needsOnboarding()` (`onboa
 **Detection + persistence:** a `useSetup()` derivation of "configured" mirroring `isConfigured()` — a connected non-demo provider **OR** an Atlas session (`account.get().session`) **OR** `sync.data.config.model`. Persist a dismissal marker in `localStorage` (pattern of `home.tsx:77` / `FdaBanner.tsx:12`). Gate on `server.healthy()===true` so it never flashes during the `undefined` checking phase.
 
 **Where to hook (three coordinated surfaces):**
+
 - **Primary — a `SetupDialog` modal** on the `@synsci/ui` `Dialog` kit, using `components/dialog-select-server.tsx` as the polished reference (health dots, `TextField`, `Button`, `List`). Auto-shown on first unconfigured load; dismissible; re-openable from settings + the Composer.
 - **`ChatWelcome`** — when `model()` is undefined, a single primary "Set up models" CTA that opens `SetupDialog` (`session.tsx:958`).
 - **`DisconnectedPanel` pattern** — a sibling **non-error** banner "No model configured — finish setup" for the unconfigured-but-connected state, so the affordance is persistent, not a transient toast. Rewire the Composer "connect a model" button and no-model submit (`Composer.tsx:719-727,1188-1191`) to open `SetupDialog` instead of toasting an external URL.

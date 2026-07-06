@@ -37,6 +37,7 @@ Config facts: **no `model` override** → reviewers run on the caller's model (`
 **What it reviews:** the final answer text + the artifacts/claims it references (+ the provenance DAG when present) — feed it the last assistant text, the artifact paths already in the `<task_result>` path (`task.ts:188-204`), and `provenance_query` access. Reviews key claims/numbers/citations/figure-stat consistency (exactly `reviewer.txt`'s remit), not style.
 
 **Config-graded (shippable):**
+
 - **Level 0 — annotate (default, non-blocking):** run the reviewer, append verdict + findings as a footer note. Zero regression; immediate "reviewed: CLEAN/FLAGGED (N)" signal.
 - **Level 1 — soft gate:** on FLAGGED/blocking, inject the report back as a user-role reminder and continue the loop for a **bounded** number of fix cycles (a real cap, not prose), then finalize with an honest "unresolved findings" note.
 - **Level 2 — hard gate (opt-in / autonomous mode):** refuse to finalize while any blocking finding is unresolved, up to the cap.

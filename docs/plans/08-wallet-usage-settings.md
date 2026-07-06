@@ -12,14 +12,14 @@ Three money/usage-adjacent panels exist:
 - **Usage** (`Usage.tsx`, id `usage`) — the richest surface. Pulls from three sources: `sdk.client.account.get()` (`routes/account.ts:37-76`; session + balance + billing_mode) → Plan & wallet card; `settingsApi(.../settings/usage)` → `routes/settings/usage.ts`, **fully local** (aggregates `Session.list()` + `Session.messages()`, summing assistant `info.cost`/`info.tokens` by model and by day, `usage.ts:51-122`) → weekly bar chart + per-model breakdown; `/settings/preferences` → the extra-budget ceiling. Refetches on window focus (`Usage.tsx:81-88`). `buy credits` → same redirect.
 - **Storage** (`Storage.tsx`) — unrelated to money; the cleanest raw-fetch + card/size-bar template to reuse.
 
-| Data | Source | Scope | In UI? |
-| --- | --- | --- | --- |
-| Aggregate balance | Atlas `/api/cli/balance` (30s cache, `index.ts:1104-1142`) | account-global | yes (a single number) |
-| Billing mode | Atlas `/api/cli/billing-mode` (`index.ts:1487-1500`) | account-global | yes (Usage) |
-| Usage over time / per-model | **local** session records (`usage.ts`) | **per-project, per-device** (`session/index.ts:295-305`) | yes (Usage) |
-| Credit transactions / ledger | Atlas `/api/credits/transactions` | — | **no — never called** |
-| Auto-topup status | — | — | **no — does not exist** |
-| Proactive low-balance warning | — | — | **no** (only at call time: `InsufficientCreditsError` `index.ts:186-193`, billing-gate preflight `session/billing-gate.ts:106-108`) |
+| Data                          | Source                                                     | Scope                                                    | In UI?                                                                                                                              |
+| ----------------------------- | ---------------------------------------------------------- | -------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| Aggregate balance             | Atlas `/api/cli/balance` (30s cache, `index.ts:1104-1142`) | account-global                                           | yes (a single number)                                                                                                               |
+| Billing mode                  | Atlas `/api/cli/billing-mode` (`index.ts:1487-1500`)       | account-global                                           | yes (Usage)                                                                                                                         |
+| Usage over time / per-model   | **local** session records (`usage.ts`)                     | **per-project, per-device** (`session/index.ts:295-305`) | yes (Usage)                                                                                                                         |
+| Credit transactions / ledger  | Atlas `/api/credits/transactions`                          | —                                                        | **no — never called**                                                                                                               |
+| Auto-topup status             | —                                                          | —                                                        | **no — does not exist**                                                                                                             |
+| Proactive low-balance warning | —                                                          | —                                                        | **no** (only at call time: `InsufficientCreditsError` `index.ts:186-193`, billing-gate preflight `session/billing-gate.ts:106-108`) |
 
 Confirmed by grep: `/api/credits` and `/api/credits/transactions` are never fetched anywhere; no transaction UI exists. The just-shipped `openscience wallet` CLI (`cli/cmd/billing.ts`) is the visual counterpart.
 

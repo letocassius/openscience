@@ -19,7 +19,7 @@ The workspace runs **two-and-a-half parallel design systems**: (1) hand-rolled i
 
 ## Prioritized backlog (highest leverage first)
 
-1. **Fix the `1120ms`→`120ms` transition typos** (`FilePreview.tsx:471`, `FolderPicker.tsx:433`). Trivial; removes visible lag. *(quick win)*
+1. **Fix the `1120ms`→`120ms` transition typos** (`FilePreview.tsx:471`, `FolderPicker.tsx:433`). Trivial; removes visible lag. _(quick win)_
 2. **Kill the no-model transient-toast dead-end** — route `Composer.tsx:719-727` / `:1188-1191` to the setup path (shared with WS4). Highest user-facing leverage.
 3. **Add real error states** — catch on `FileView`'s `file.read` (`FilePreview.tsx:133-144`); a **retry button** on `FileExplorer` (`:411-446`); stop `FolderPicker` masking errors as empty (`:80-83`).
 4. **Adopt one loading treatment** — wire the existing `.thesis-skeleton` (or `AsciiSpinner`), replace scattered literal `loading…`; give `SkillsBrowser` a loading state distinct from empty.

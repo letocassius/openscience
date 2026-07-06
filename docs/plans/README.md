@@ -8,19 +8,19 @@ Nothing irreversible ships without owner sign-off — **sandboxing (10) is desig
 
 ## Workstreams
 
-| #   | Workstream                     | Plan                                             | Kind                    | Status |
-| --- | ------------------------------ | ------------------------------------------------ | ----------------------- | ------ |
-| 1   | CI + test suite hardening      | [01-ci-tests.md](01-ci-tests.md)                 | fix + investigate       | 📝     |
-| 2   | Codex OAuth login              | [02-codex-oauth.md](02-codex-oauth.md)           | fix                     | 📝     |
-| 3   | Atlas account sync             | [03-atlas-sync.md](03-atlas-sync.md)             | fix                     | 📝     |
-| 4   | Onboarding → setup (browser)   | [04-onboarding-setup.md](04-onboarding-setup.md) | feature                 | 📝     |
-| 5   | UX polish                      | [05-ux-polish.md](05-ux-polish.md)               | feature                 | 📝     |
-| 6   | Compute integrations audit     | [06-compute-integrations.md](06-compute-integrations.md) | investigate + fix | 📝     |
-| 7   | Atlas experience               | [07-atlas-experience.md](07-atlas-experience.md) | feature                 | 📝     |
-| 8   | Wallet + usage in settings     | [08-wallet-usage-settings.md](08-wallet-usage-settings.md) | feature       | 📝     |
-| 9   | arXiv fetching                 | [09-arxiv-retrieval.md](09-arxiv-retrieval.md)   | fix                     | 📝     |
-| 10  | Agent sandboxing (design only) | [10-agent-sandboxing.md](10-agent-sandboxing.md) | design — needs sign-off | 📝     |
-| 11  | Reviewer agent + open ideas    | [11-reviewer-agent.md](11-reviewer-agent.md)     | prototype/spec          | 📝     |
+| #   | Workstream                     | Plan                                                       | Kind                    | Status |
+| --- | ------------------------------ | ---------------------------------------------------------- | ----------------------- | ------ |
+| 1   | CI + test suite hardening      | [01-ci-tests.md](01-ci-tests.md)                           | fix + investigate       | 📝     |
+| 2   | Codex OAuth login              | [02-codex-oauth.md](02-codex-oauth.md)                     | fix                     | 📝     |
+| 3   | Atlas account sync             | [03-atlas-sync.md](03-atlas-sync.md)                       | fix                     | 📝     |
+| 4   | Onboarding → setup (browser)   | [04-onboarding-setup.md](04-onboarding-setup.md)           | feature                 | 📝     |
+| 5   | UX polish                      | [05-ux-polish.md](05-ux-polish.md)                         | feature                 | 📝     |
+| 6   | Compute integrations audit     | [06-compute-integrations.md](06-compute-integrations.md)   | investigate + fix       | 📝     |
+| 7   | Atlas experience               | [07-atlas-experience.md](07-atlas-experience.md)           | feature                 | 📝     |
+| 8   | Wallet + usage in settings     | [08-wallet-usage-settings.md](08-wallet-usage-settings.md) | feature                 | 📝     |
+| 9   | arXiv fetching                 | [09-arxiv-retrieval.md](09-arxiv-retrieval.md)             | fix                     | 📝     |
+| 10  | Agent sandboxing (design only) | [10-agent-sandboxing.md](10-agent-sandboxing.md)           | design — needs sign-off | 📝     |
+| 11  | Reviewer agent + open ideas    | [11-reviewer-agent.md](11-reviewer-agent.md)               | prototype/spec          | 📝     |
 
 Status: 🔎 exploring · 📝 plan drafted · 🚧 implementing · ✅ done · ⛔ blocked on owner decision.
 
@@ -28,7 +28,7 @@ Status: 🔎 exploring · 📝 plan drafted · 🚧 implementing · ✅ done · 
 
 - **Urgent hang fix** — every Atlas call (bridge + client) is now timeout-bounded, so `openscience project init` (run every session by the research prompt) and the per-command sync probe can't wedge a session for 60 min.
 - **WS1 — CI determinism ✅** — tests seed a committed models.dev catalog fixture (zero network); the live delisting check moved to a nightly `catalog.yml` job. **855 pass / 0 fail**, deterministic. (Coverage — WS1-B — grows alongside each feature workstream.)
-- **WS2 — Codex login 🚧** — hardened the OAuth flow (HTTP timeouts, port-in-use fallback, device-poll deadline, refresh that retries transient 5xx but only says "reconnect" on a real 4xx), clean error surfacing + headless device fallback, and made **"Sign in with ChatGPT (Codex)" a first-class option in the wizard picker** (it was previously unreachable there). Remaining: the managed-proxy P0 — the backend actually *consuming* the pushed Codex tokens — needs the token-owner decision.
+- **WS2 — Codex login 🚧** — hardened the OAuth flow (HTTP timeouts, port-in-use fallback, device-poll deadline, refresh that retries transient 5xx but only says "reconnect" on a real 4xx), clean error surfacing + headless device fallback, and made **"Sign in with ChatGPT (Codex)" a first-class option in the wizard picker** (it was previously unreachable there). Remaining: the managed-proxy P0 — the backend actually _consuming_ the pushed Codex tokens — needs the token-owner decision.
 
 Next: WS3 (sync billing-flip + atomic writes).
 

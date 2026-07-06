@@ -16,23 +16,25 @@ There are **two independent OAuth flows + two token stores**, loosely coupled by
 
 1. **Backend token consumption is not wired.** `get_valid_access_token()` has **zero non-test callers** in Atlas — the pushed tokens power **only the status dot**; the "managed proxy can use them" promise is unrealized. All working codex inference is CLI-local.
 2. **Web "Sign in with ChatGPT" is a dead end.** Endpoints, pending repo, sweeper, `CodexCallbackPage`, and the API client all exist — but **nothing calls them**; `CodexProviderCard.tsx` only renders status and tells users to run the CLI.
-3. **Refresh-token rotation is a cross-store landmine.** OpenAI rotates the refresh token on every use; the CLI pushes the *same* token to the backend; the single-flight guard is per-process; there's **no CLI↔backend coordination**. Masked today only because the backend never refreshes (item 1) — the instant a backend proxy is wired, the two stores fight over the rotating token and one is permanently locked out.
+3. **Refresh-token rotation is a cross-store landmine.** OpenAI rotates the refresh token on every use; the CLI pushes the _same_ token to the backend; the single-flight guard is per-process; there's **no CLI↔backend coordination**. Masked today only because the backend never refreshes (item 1) — the instant a backend proxy is wired, the two stores fight over the rotating token and one is permanently locked out.
 4. **`backendHasCodex()` checks `connected`, not `is_valid`** (`auth.ts:416-420`) — a dead backend credential still shows "Already signed in?"
 5. **Login-time push failure is silent** — "Login successful" while the dashboard shows "not connected."
 6. **Unhappy-path errors are swallowed/crash** — `handlePluginAuth` only inspects `result.type`; a rejected callback (denied consent, CSRF, timeout, exchange failure) throws a raw exception, not a clean message.
 7. **Device-code has no overall timeout** — `while(true)` can hang on persistent 403s; thin errors.
 8. **Headless/CI dead-ends** — browser is the default (needs a real browser + free port 1455); `keys signin` doesn't detect non-TTY to prefer device-code; port-1455-in-use makes `Bun.serve` throw unhandled.
-9. **Refresh has no retry and no proactive window** — only refreshes *after* expiry (request-time latency + mid-request failure); a single transient 5xx throws "reconnect"; no 4xx/5xx split like the backend.
+9. **Refresh has no retry and no proactive window** — only refreshes _after_ expiry (request-time latency + mid-request failure); a single transient 5xx throws "reconnect"; no 4xx/5xx split like the backend.
 10. **Logout revoke is silently best-effort** — a failed OpenAI revoke leaves the token live upstream with no signal.
 11. **`enabled_providers` allowlist edge** — a local-only login can be filtered out if the allowlist lacks `openai-codex`.
 
 ## Proposed change
 
 **Decide the backend's role first (unblocks everything):**
+
 - **P0 — pick one token owner.** Either (a) **finish the managed proxy** (add the Atlas inference route calling `get_valid_access_token()`, and make the CLI fetch short-lived access tokens from the backend instead of holding the refresh token), or (b) **make codex CLI-local** (stop pushing tokens; derive status from a light flag). **Do not ship today's half-state** where both stores hold the same rotating token but only one refreshes.
 - **P0 — single source of truth for refresh.** Guarantee only one party ever exchanges a given rotating refresh token; if the CLI stays owner, **re-push the rotated pair after every successful CLI refresh**.
 
 **Reliability fixes:**
+
 - **P1** reconcile on `is_valid` not just `connected` (`auth.ts:416-447`); **P1** await + surface push failure at login; **P1** robust refresh (4xx→reconnect vs 5xx/network→bounded retry+backoff, mirror the backend; refresh ~60 s before expiry); **P1** clean CLI error surfacing (map OAuth error codes to friendly lines; never leave a half-written `auth.json` or a dangling :1455 server); **P1** headless/CI (auto-detect non-TTY + `--device`; overall device-poll timeout; port-in-use → device-code fallback).
 - **P2** web flow — either wire the popup (`CodexProviderCard` → `getAuthorizeUrl` → popup → `exchangeCode`) **plus** an import-to-CLI path, **or remove** the unused endpoints/sweeper/callback. **P2** logout — retry + surface `revocation_status`.
 
