@@ -1509,6 +1509,76 @@ export namespace OpenScience {
     }
   }
 
+  // === Wallet / credits ===
+
+  export interface Credits {
+    balanceUsd: number
+    cliBalanceCents: number
+    cycleCreditsRemainingCents: number
+    lifetimeSpentCents: number
+  }
+
+  export async function getCredits(): Promise<Credits | null> {
+    const session = await getSession()
+    if (!session) return null
+    try {
+      const res = await atlasFetch(`${API_BASE}/api/credits`, {
+        headers: { Authorization: `Bearer ${session.api_key}` },
+      })
+      if (!res.ok) return null
+      const d = (await res.json()) as {
+        unified_balance_cents?: number
+        balance_cents?: number
+        cli_balance_cents?: number
+        cycle_credits_remaining_cents?: number
+        lifetime_spent_cents?: number
+      }
+      const cents = d.unified_balance_cents ?? d.balance_cents ?? 0
+      return {
+        balanceUsd: cents / 100,
+        cliBalanceCents: d.cli_balance_cents ?? d.balance_cents ?? 0,
+        cycleCreditsRemainingCents: d.cycle_credits_remaining_cents ?? 0,
+        lifetimeSpentCents: d.lifetime_spent_cents ?? 0,
+      }
+    } catch (e) {
+      log.warn("getCredits error", { error: e instanceof Error ? e.message : String(e) })
+      return null
+    }
+  }
+
+  export interface Transaction {
+    id: string
+    amountCents: number
+    source: string
+    description: string
+    createdAt: string
+  }
+
+  export async function getTransactions(limit = 20): Promise<Transaction[] | null> {
+    const session = await getSession()
+    if (!session) return null
+    try {
+      const res = await atlasFetch(`${API_BASE}/api/credits/transactions`, {
+        headers: { Authorization: `Bearer ${session.api_key}` },
+      })
+      if (!res.ok) return null
+      const body = (await res.json()) as
+        | Array<Record<string, unknown>>
+        | { transactions?: Array<Record<string, unknown>> }
+      const rows = Array.isArray(body) ? body : (body.transactions ?? [])
+      return rows.slice(0, limit).map((r) => ({
+        id: String(r["id"] ?? ""),
+        amountCents: Number(r["amount_cents"] ?? 0),
+        source: String(r["source"] ?? ""),
+        description: String(r["description"] ?? ""),
+        createdAt: String(r["created_at"] ?? ""),
+      }))
+    } catch (e) {
+      log.warn("getTransactions error", { error: e instanceof Error ? e.message : String(e) })
+      return null
+    }
+  }
+
   // === Billing mode (BYOK ↔ managed) ===
 
   export interface BillingMode {
