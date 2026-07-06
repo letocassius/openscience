@@ -222,7 +222,7 @@ function resolveAtlasPackageDir(): string | null {
   for (const start of starts) {
     let dir = start
     while (true) {
-      const candidate = path.join(dir, "node_modules", "@openscience", "atlas", "package.json")
+      const candidate = path.join(dir, "node_modules", "@synsci", "atlas", "package.json")
       if (existsSync(candidate)) return path.dirname(candidate)
       const parent = path.dirname(dir)
       if (parent === dir) break
