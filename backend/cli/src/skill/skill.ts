@@ -8,6 +8,7 @@ import { State } from "../project/state"
 import { runtimeRegexPass, classifierInjectionRegexPass } from "./install/review"
 import { NamedError } from "@synsci/util/error"
 import { ConfigMarkdown } from "../config/markdown"
+import INITIALIZE_ATLAS_GRAPH_MD from "./system/initialize-atlas-graph.txt"
 import { Log } from "../util/log"
 import { Global } from "@/global"
 import { Filesystem } from "@/util/filesystem"
@@ -17,6 +18,15 @@ import { BusEvent } from "@/bus/bus-event"
 import { Session } from "@/session"
 import { OpenScience } from "@/openscience"
 import { Installation } from "@/installation"
+
+// System skills the product invokes directly (e.g. the canvas prefills
+// `/initialize-atlas-graph`) but which are not part of the server skill
+// catalog. Their SKILL.md is embedded so they resolve in every install —
+// including the compiled binary, which ships no skills and otherwise depends on
+// the API index. Kept in sync with skills/research/<name>/SKILL.md by a test.
+const SYSTEM_SKILLS: Array<{ name: string; content: string }> = [
+  { name: "initialize-atlas-graph", content: INITIALIZE_ATLAS_GRAPH_MD },
+]
 
 export namespace Skill {
   const log = Log.create({ service: "skill" })
@@ -422,6 +432,22 @@ export namespace Skill {
         followSymlinks: true,
       })) {
         await addSkill(match)
+      }
+    }
+
+    // System skills: embedded so they resolve in every install even when the
+    // server catalog and the shipping binary omit them. Materialize to the cache
+    // only when not already loaded (dev/source and API entries take precedence).
+    // Respects the bundled-skills opt-out, same as the catalog.
+    if (!Flag.OPENSCIENCE_DISABLE_BUNDLED_SKILLS) {
+      for (const sys of SYSTEM_SKILLS) {
+        if (skills[sys.name]) continue
+        const file = path.join(Global.Path.cache, "system-skills", sys.name, "SKILL.md")
+        if (!(await Bun.file(file).exists())) {
+          await fs.mkdir(path.dirname(file), { recursive: true })
+          await Bun.write(file, sys.content)
+        }
+        await addSkill(file)
       }
     }
 
