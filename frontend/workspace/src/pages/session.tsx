@@ -17,7 +17,7 @@ import { useSync } from "@/context/sync"
 import { useSDK } from "@/context/sdk"
 import { useLayout } from "@/context/layout"
 import { useTheme } from "@synsci/ui/theme"
-import { Composer } from "@/thesis/Composer"
+import { PromptInput } from "@/components/prompt-input"
 import { Wordmark } from "@/thesis/Wordmark"
 import { AppHeader, HeaderIconButton, HeaderDivider } from "@/thesis/AppHeader"
 import { RightPane } from "@/thesis/RightPane"
@@ -146,8 +146,8 @@ export default function Page(): JSX.Element {
   )
 
   // Hydrate child (sub-agent) sessions of the active session regardless of
-  // which right-pane tab is open, so the Agents view and inline turn status
-  // populate immediately and survive a reload.
+  // which right-pane tab is open, so the inline turn status and back-to-parent
+  // navigation populate immediately and survive a reload.
   const hydratedChildren = new Set<string>()
   createEffect(() => {
     const id = params.id
@@ -396,52 +396,74 @@ export default function Page(): JSX.Element {
                 flex: 1,
                 "min-height": 0,
                 "flex-direction": "column",
+                position: "relative",
               }}
             >
               <Switch>
                 <Match when={params.id && messages().length > 0}>
                   <div
                     ref={attachScroll}
-                    class="thesis-scroll thesis-chat-scroll"
+                    class="thesis-scroll thesis-chat-scroll session-scroller"
                     style={{
                       flex: 1,
                       "min-height": 0,
                       "overflow-y": "auto",
                       "overflow-x": "hidden",
-                      "padding-top": "12px",
+                      position: "relative",
                     }}
                   >
-                    <For each={turnMessages()}>
-                      {(message, index) => (
-                        <div
-                          data-message-id={message.id}
-                          style={{
-                            "min-width": 0,
-                            width: "100%",
-                            "max-width": "100%",
-                          }}
-                        >
-                          <SessionTurn
-                            sessionID={params.id!}
-                            messageID={message.id}
-                            lastUserMessageID={lastUserMessage()?.id}
-                            stepsExpanded={stepsExpanded()[message.id] ?? false}
-                            onStepsExpandedToggle={() => toggleSteps(message.id)}
-                            onRevertMessage={(id) => void revertTo(id)}
-                            hideTools={["task"]}
-                            classes={{
-                              root: "min-w-0 w-full relative",
-                              content: "flex flex-col justify-between !overflow-visible",
-                              container: "w-full px-4 md:px-8",
-                            }}
-                          />
-                          {/* Space, not a rule — the bubbles already separate turns. */}
-                          <Show when={index() < turnMessages().length - 1}>
-                            <div style={{ height: "22px" }} />
-                          </Show>
+                    {/* Sticky title + back-to-parent (sub-agent) header */}
+                    <Show when={activeSession()?.title || activeSession()?.parentID}>
+                      <div class="sticky top-0 z-30 bg-background-stronger w-full">
+                        <div class="w-full px-4 md:px-6 md:max-w-200 md:mx-auto">
+                          <div class="h-10 flex items-center gap-1.5">
+                            <Show when={activeSession()?.parentID}>
+                              <button
+                                type="button"
+                                class="flex items-center justify-center size-7 shrink-0 rounded-md text-text-weak hover:text-text-base hover:bg-surface-base-hover transition-colors"
+                                aria-label="Back to parent session"
+                                onClick={() => navigate(`/${params.dir}/session/${activeSession()!.parentID}`)}
+                              >
+                                <IconChevronLeft />
+                              </button>
+                            </Show>
+                            <Show when={activeSession()?.title}>
+                              <h1 class="text-14-medium text-text-strong truncate">{activeSession()!.title}</h1>
+                            </Show>
+                          </div>
                         </div>
-                      )}
-                    </For>
+                      </div>
+                    </Show>
+
+                    {/* Centered conversation column with 2px between-turn divider */}
+                    <div class="w-full md:max-w-200 md:mx-auto flex flex-col items-start justify-start pt-3 pb-[calc(10rem+64px)]">
+                      <For each={turnMessages()}>
+                        {(message, index) => (
+                          <div data-message-id={message.id} class="min-w-0 w-full max-w-full">
+                            <SessionTurn
+                              sessionID={params.id!}
+                              messageID={message.id}
+                              lastUserMessageID={lastUserMessage()?.id}
+                              stepsExpanded={stepsExpanded()[message.id] ?? false}
+                              onStepsExpandedToggle={() => toggleSteps(message.id)}
+                              onRevertMessage={(id) => void revertTo(id)}
+                              hideTools={["task"]}
+                              classes={{
+                                root: "min-w-0 w-full relative",
+                                content: "flex flex-col justify-between !overflow-visible",
+                                container: "w-full px-4 md:px-6",
+                              }}
+                            />
+                            {/* The v1.1.116 between-turns rule */}
+                            <Show when={index() < turnMessages().length - 1}>
+                              <div class="w-full px-4 md:px-6 pt-2 pb-1">
+                                <div class="h-[2px] bg-border-weak-base rounded-full" />
+                              </div>
+                            </Show>
+                          </div>
+                        )}
+                      </For>
+                    </div>
                   </div>
                 </Match>
                 <Match when={true}>
@@ -449,47 +471,50 @@ export default function Page(): JSX.Element {
                 </Match>
               </Switch>
 
-              <Show when={revertInfo()}>
-                <div style={{ padding: "8px 16px 0" }}>
-                  <div
-                    style={{
-                      display: "flex",
-                      "align-items": "center",
-                      gap: "12px",
-                      padding: "8px 12px",
-                      border: "1px solid var(--color-border)",
-                      "border-radius": "4px",
-                      "font-size": "12px",
-                      "font-family": FONT_SANS,
-                      color: "var(--color-text-muted)",
-                      background: "var(--color-bg)",
-                    }}
-                  >
-                    <span style={{ flex: 1, "min-width": 0 }}>
-                      Conversation reverted. {revertedCount()} turn{revertedCount() === 1 ? "" : "s"} hidden and file
-                      changes rolled back. Sending a new message makes this permanent.
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => void restoreRevert()}
+              {/* Prompt dock — gradient fade + centered PromptInput (v1.1.116) */}
+              <div class="absolute inset-x-0 bottom-0 pt-12 pb-4 flex flex-col justify-center items-center z-50 px-4 md:px-0 bg-gradient-to-t from-background-stronger via-background-stronger to-transparent pointer-events-none">
+                <div class="w-full px-4 pointer-events-auto md:max-w-200 md:mx-auto">
+                  <Show when={revertInfo()}>
+                    <div
+                      class="mb-3"
                       style={{
+                        display: "flex",
+                        "align-items": "center",
+                        gap: "12px",
+                        padding: "8px 12px",
                         border: "1px solid var(--color-border)",
-                        background: "transparent",
-                        color: "inherit",
-                        padding: "4px 10px",
-                        "border-radius": "4px",
+                        "border-radius": "8px",
                         "font-size": "12px",
-                        cursor: "pointer",
-                        "white-space": "nowrap",
+                        "font-family": FONT_SANS,
+                        color: "var(--color-text-muted)",
+                        background: "var(--color-bg)",
                       }}
                     >
-                      restore
-                    </button>
-                  </div>
+                      <span style={{ flex: 1, "min-width": 0 }}>
+                        Conversation reverted. {revertedCount()} turn{revertedCount() === 1 ? "" : "s"} hidden and file
+                        changes rolled back. Sending a new message makes this permanent.
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => void restoreRevert()}
+                        style={{
+                          border: "1px solid var(--color-border)",
+                          background: "transparent",
+                          color: "inherit",
+                          padding: "4px 10px",
+                          "border-radius": "8px",
+                          "font-size": "12px",
+                          cursor: "pointer",
+                          "white-space": "nowrap",
+                        }}
+                      >
+                        restore
+                      </button>
+                    </div>
+                  </Show>
+                  <PromptInput />
                 </div>
-              </Show>
-
-              <Composer />
+              </div>
             </div>
 
             {/* files — the host explorer, mounted on first visit */}
