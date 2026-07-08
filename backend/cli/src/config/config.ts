@@ -192,7 +192,20 @@ export namespace Config {
     // corruption or a file written by an older, non-atomic version.
     const syncedConfig = path.join(Global.Path.config, "openscience-synced.json")
     try {
-      result = mergeConfigConcatArrays(result, await loadFile(syncedConfig))
+      const synced = await loadFile(syncedConfig)
+      // The dashboard sync is a MANAGED artifact: it pins `enabled_providers` to
+      // the wallet's OpenRouter route so a managed session can only reach the
+      // sanctioned catalog. Under an EXPLICIT byok toggle the user wants their
+      // OWN keys — so drop that managed-only whitelist before merging. Without
+      // this, a lingering managed sync (from a prior `openscience login`)
+      // whitelists away every byok provider the user has or later adds, so byok
+      // shows nothing but the leftover OpenRouter. Auto-detect (billing unset) is
+      // left alone. The managed openrouter *credential* is separately dropped in
+      // provider.ts under byok, so this only frees the catalog.
+      if (synced && (result as { billing?: { llm?: string } }).billing?.llm === "byok") {
+        delete (synced as { enabled_providers?: unknown }).enabled_providers
+      }
+      result = mergeConfigConcatArrays(result, synced)
     } catch {
       // treat an unreadable synced config as absent
     }

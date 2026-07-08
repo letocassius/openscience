@@ -121,8 +121,6 @@ export namespace SessionPrompt {
     system: z.string().optional(),
     variant: z.string().optional(),
     tier: z.enum(["fast", "pro", "ultra"]).optional(),
-    // Per-request fast API param (gpt-5.5 → service_tier:"priority"). See llm.ts.
-    fast: z.boolean().optional(),
     parts: z.array(
       z.discriminatedUnion("type", [
         MessageV2.TextPart.omit({
@@ -960,7 +958,6 @@ export namespace SessionPrompt {
       system: input.system,
       variant: input.variant,
       tier: input.tier,
-      fast: input.fast,
     }
     using _ = defer(() => InstructionPrompt.clear(info.id))
 

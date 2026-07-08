@@ -810,11 +810,20 @@ export namespace ProviderTransform {
       // summaries + encrypted content have to be requested on that path too,
       // otherwise gpt-5.x streams reasoning *items* (start/end fire) with zero
       // summary deltas, so every reasoning part lands empty and the UI shows a
-      // blank "thinking" block. Genuine BYOK (no proxy baseURL) is left alone,
-      // so an unverified org never gets an unexpected summary request.
+      // blank "thinking" block.
       const managedBaseURL = input.providerOptions?.["baseURL"]
       const viaManagedProxy = typeof managedBaseURL === "string" && managedBaseURL.includes("/api/llm/proxy/")
-      if (input.model.providerID.startsWith("synsci") || viaManagedProxy) {
+      // Request summaries + encrypted content on every OpenAI-Responses path that
+      // can carry them: managed (synsci native + Atlas-proxied "openai") and direct
+      // BYOK openai. This mirrors the per-effort variant options above (the
+      // @ai-sdk/openai, azure, and github-copilot cases already ship these exact
+      // keys for openai models) — this block just applies the same defaults when no
+      // effort variant is selected, so the trace renders instead of streaming blank.
+      // On verification: reasoning.encrypted_content + summaries need an OpenAI-
+      // verified org, but that is the SAME gate OpenAI requires to *stream* gpt-5 at
+      // all. Any org that can stream the model can also receive these keys, so this
+      // adds no failure surface beyond the streaming requirement already in force.
+      if (input.model.providerID.startsWith("synsci") || viaManagedProxy || input.model.providerID === "openai") {
         result["promptCacheKey"] = input.sessionID
         result["include"] = ["reasoning.encrypted_content"]
         result["reasoningSummary"] = "auto"
