@@ -14,7 +14,15 @@ import { useGlobalSync } from "@/context/global-sync"
 import { FONT_MONO, FONT_SANS } from "@/styles/tokens"
 import { IconBrain } from "@/thesis/shared/Icon"
 import type { Config } from "@synsci/sdk/v2/client"
-import { SearchInput, FilterMenu, AddMenu, Toolbar, EmptyState, FormField, FormButton } from "@/components/settings/_shared"
+import {
+  SearchInput,
+  FilterMenu,
+  AddMenu,
+  Toolbar,
+  EmptyState,
+  FormField,
+  FormButton,
+} from "@/components/settings/_shared"
 
 interface Skill {
   name: string
@@ -96,7 +104,9 @@ export default function SkillsPage(): JSX.Element {
     }
     return [
       { id: "all", label: "All", count: all().length },
-      ...[...counts.entries()].sort((a, b) => a[0].localeCompare(b[0])).map(([id, count]) => ({ id, label: id, count })),
+      ...[...counts.entries()]
+        .sort((a, b) => a[0].localeCompare(b[0]))
+        .map(([id, count]) => ({ id, label: id, count })),
     ]
   })
 
@@ -157,7 +167,9 @@ export default function SkillsPage(): JSX.Element {
             <IconBrain size={20} strokeWidth={1.6} />
           </div>
           <div style={{ display: "flex", "flex-direction": "column", gap: "3px", "min-width": 0 }}>
-            <h1 style={{ "font-family": FONT_SANS, "font-size": "19px", "font-weight": 600, color: "var(--color-text)" }}>
+            <h1
+              style={{ "font-family": FONT_SANS, "font-size": "19px", "font-weight": 600, color: "var(--color-text)" }}
+            >
               Skills
             </h1>
             <p
@@ -291,10 +303,7 @@ export default function SkillsPage(): JSX.Element {
           </Show>
 
           <Show when={view() === "list"}>
-            <Show
-              when={!skills.loading}
-              fallback={<div style={loadingStyle()}>Loading skills…</div>}
-            >
+            <Show when={!skills.loading} fallback={<div style={loadingStyle()}>Loading skills…</div>}>
               <Show
                 when={filtered().length > 0}
                 fallback={
@@ -313,7 +322,9 @@ export default function SkillsPage(): JSX.Element {
                       <section style={{ display: "flex", "flex-direction": "column", gap: "11px" }}>
                         <div style={{ display: "flex", "align-items": "baseline", gap: "8px" }}>
                           <span class="thesis-section-label">{cat}</span>
-                          <span style={{ "font-family": FONT_MONO, "font-size": "10px", color: "var(--color-text-faint)" }}>
+                          <span
+                            style={{ "font-family": FONT_MONO, "font-size": "10px", color: "var(--color-text-faint)" }}
+                          >
                             {items.length}
                           </span>
                         </div>
@@ -326,7 +337,11 @@ export default function SkillsPage(): JSX.Element {
                         >
                           <For each={items}>
                             {(skill) => (
-                              <SkillCard skill={skill} on={enabled(skill.name)} onToggle={(v) => void toggle(skill.name, v)} />
+                              <SkillCard
+                                skill={skill}
+                                on={enabled(skill.name)}
+                                onToggle={(v) => void toggle(skill.name, v)}
+                              />
                             )}
                           </For>
                         </div>

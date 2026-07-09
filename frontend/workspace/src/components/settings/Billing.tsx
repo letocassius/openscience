@@ -60,13 +60,29 @@ const when = (iso: string) => {
 }
 
 const LLM_MODES = [
-  { value: "managed" as const, title: "Managed", body: "LLM calls route through your Atlas wallet — metered credits, no API keys needed." },
-  { value: "byok" as const, title: "BYOK", body: "Your own provider keys or OAuth subscriptions (Claude Pro, ChatGPT, Copilot). Never billed here." },
-  { value: null, title: "Auto", body: "Detect from the credential backing each call — managed proxy tokens bill the wallet, your own keys don't." },
+  {
+    value: "managed" as const,
+    title: "Managed",
+    body: "LLM calls route through your Atlas wallet — metered credits, no API keys needed.",
+  },
+  {
+    value: "byok" as const,
+    title: "BYOK",
+    body: "Your own provider keys or OAuth subscriptions (Claude Pro, ChatGPT, Copilot). Never billed here.",
+  },
+  {
+    value: null,
+    title: "Auto",
+    body: "Detect from the credential backing each call — managed proxy tokens bill the wallet, your own keys don't.",
+  },
 ]
 const COMPUTE_MODES = [
   { value: "managed" as const, title: "Managed", body: "Atlas-provisioned GPUs, billed to your wallet." },
-  { value: "byok" as const, title: "BYOK", body: "Your own connected GPU providers (Settings → Compute). Your provider bills you directly." },
+  {
+    value: "byok" as const,
+    title: "BYOK",
+    body: "Your own connected GPU providers (Settings → Compute). Your provider bills you directly.",
+  },
 ]
 
 export default function Billing(): JSX.Element {
@@ -340,7 +356,12 @@ export default function Billing(): JSX.Element {
                   style={fieldStyle()}
                 />
               </label>
-              <Button type="submit" size="small" variant="secondary" disabled={String(budget()) === (budgetDraft() || "0")}>
+              <Button
+                type="submit"
+                size="small"
+                variant="secondary"
+                disabled={String(budget()) === (budgetDraft() || "0")}
+              >
                 save
               </Button>
             </form>
@@ -386,7 +407,9 @@ export default function Billing(): JSX.Element {
         <div class="flex flex-col gap-3">
           <div class="flex flex-col gap-1">
             <SectionLabel label="Where tokens go" />
-            <p class="text-12-regular text-text-weak">Spend per model across {usage()?.sessions ?? 0} local sessions.</p>
+            <p class="text-12-regular text-text-weak">
+              Spend per model across {usage()?.sessions ?? 0} local sessions.
+            </p>
           </div>
           <Show
             when={(usage()?.by_model.length ?? 0) > 0}

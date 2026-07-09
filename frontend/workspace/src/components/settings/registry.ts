@@ -120,7 +120,13 @@ export const SETTINGS_PANELS: SettingsPanel[] = [
   },
   // Wallet + Spend + Usage merged into one Billing panel (they each rendered a
   // duplicate balance card). Balance · Spend routing · Usage · Ledger.
-  { id: "billing", title: "Billing", icon: "sliders", section: "workspace", component: lazy(() => import("./Billing")) },
+  {
+    id: "billing",
+    title: "Billing",
+    icon: "sliders",
+    section: "workspace",
+    component: lazy(() => import("./Billing")),
+  },
   { id: "storage", title: "Storage", icon: "folder", section: "workspace", component: lazy(() => import("./Storage")) },
   {
     id: "general",

@@ -442,7 +442,8 @@ export namespace ProviderTransform {
     const id = model.id.toLowerCase()
     if (id.includes("gpt-5-pro")) return []
     if (id.includes("gpt-5") && id.includes("pro")) return ["medium", "high", "xhigh"]
-    if (id.includes("codex")) return /5[.-]2/.test(id) ? [...WIDELY_SUPPORTED_EFFORTS, "xhigh"] : [...WIDELY_SUPPORTED_EFFORTS]
+    if (id.includes("codex"))
+      return /5[.-]2/.test(id) ? [...WIDELY_SUPPORTED_EFFORTS, "xhigh"] : [...WIDELY_SUPPORTED_EFFORTS]
     const arr = [...WIDELY_SUPPORTED_EFFORTS]
     if (model.release_date >= "2025-11-13") arr.unshift("none")
     else if (id.includes("gpt-5")) arr.unshift("minimal")
@@ -600,8 +601,7 @@ export namespace ProviderTransform {
         // to include xhigh/max. Detection is by canonical id — note Fable/Mythos
         // are NOT opus/sonnet/haiku, so they must be matched explicitly or they
         // fall through to the classic path below and 400 (manual thinking rejected).
-        const usesEffort =
-          /^claude-opus-4[.-][78]\b/.test(id) || /^claude-(opus|sonnet|fable|mythos)-[5-9]\b/.test(id)
+        const usesEffort = /^claude-opus-4[.-][78]\b/.test(id) || /^claude-(opus|sonnet|fable|mythos)-[5-9]\b/.test(id)
 
         if (usesEffort) {
           return {
