@@ -329,11 +329,12 @@ OpenScience assembles prompts from runtime behavior and project context. These r
 ```text
 User request with an active agent name, such as research
   |
-  +-- SYSTEM role: provider-level session prompt
-  |     src/session/system.ts selects by model provider
+  +-- SYSTEM role: runtime base prompt
+  |     src/session/llm.ts uses Agent.Info.prompt when present;
+  |     otherwise src/session/system.ts selects by model
   |
-  +-- USER role injection: agent workflow prompt
-  |     src/session/prompt.ts selects by active agent name and tier
+  +-- USER role injection: agent workflow reminder
+  |     src/session/prompt.ts selects by active agent name
   |
   +-- Project guidance: repository instruction files
         src/session/instruction.ts loads root and directory-local instructions
@@ -343,7 +344,7 @@ Repository instructions add project context. They do not select or replace the a
 
 #### Provider-level system prompts
 
-`src/session/system.ts` routes through `SystemPrompt.provider(model)` to prompts under `src/session/prompt/`:
+For agents without an `Agent.Info.prompt`, `src/session/llm.ts` calls `SystemPrompt.provider(model)` in `src/session/system.ts`. Codex OAuth sessions send `codex_header.txt` through provider options instead of the system-message array.
 
 | File | Purpose |
 | --- | --- |
@@ -352,13 +353,12 @@ Repository instructions add project context. They do not select or replace the a
 | `codex_header.txt` | GPT-5 and Codex models |
 | `gemini.txt` | Gemini models |
 | `qwen.txt` | Qwen and fallback models |
-| `copilot-gpt-5.txt` | Copilot GPT-5 models |
-| `plan.txt`, `plan-reminder-anthropic.txt` | Plan mode |
-| `build-switch.txt`, `max-steps.txt` | Runtime utilities |
 
 #### Agent workflow prompts
 
-`src/session/prompt.ts` injects agent workflow prompts by agent name in `insertReminders`:
+##### User-role workflow reminders
+
+`src/session/prompt.ts` imports these prompts and `insertReminders` appends them as synthetic text to the latest user message according to the active agent name:
 
 | File | Agent role |
 | --- | --- |
@@ -366,12 +366,21 @@ Repository instructions add project context. They do not select or replace the a
 | `src/agent/prompt/biology.txt` | `biology` specialist |
 | `src/agent/prompt/physics.txt` | `physics` specialist |
 | `src/agent/prompt/ml.txt` | `ml` specialist |
-| `src/agent/prompt/physics-critique.txt` | `physics-critique` subagent |
-| `src/agent/prompt/critique.txt` | `critique` subagent |
-| `src/agent/prompt/reviewer.txt` | `reviewer` subagent |
-| `src/agent/prompt/literature-review.txt` | `literature-review` subagent |
 | `src/agent/prompt/write.txt` | `write` subagent |
+
+When experimental plan mode is disabled, `insertReminders` also injects `src/session/prompt/plan.txt` for `plan`; it injects `build-switch.txt` when leaving plan mode in either flow. Separately, `src/session/prompt.ts` appends `max-steps.txt` as assistant-role content on an agent's final allowed step.
+
+##### Registry-owned system prompts
+
+`src/agent/agent.ts` assigns these files to `Agent.Info.prompt`. In `src/session/llm.ts`, a populated `input.agent.prompt` is delivered in the system prompt and takes the place of `SystemPrompt.provider(model)`:
+
+| File | Agent role |
+| --- | --- |
 | `src/agent/prompt/explore.txt` | `explore` subagent |
+| `src/agent/prompt/literature-review.txt` | `literature-review` subagent |
+| `src/agent/prompt/critique.txt` | `critique` subagent |
+| `src/agent/prompt/physics-critique.txt` | `physics-critique` subagent |
+| `src/agent/prompt/reviewer.txt` | `reviewer` subagent |
 
 The agent registry in `src/agent/agent.ts` defines each `Agent.Info`: name, mode, visibility, model, prompt, permissions, temperature, and step limit. `research` is the single user-facing default and the plan-exit target. `biology`, `physics`, and `ml` are specialists; `plan` is read-only; hidden task, exploration, review, critique, writing, compaction, and title agents support the runtime. Custom agents can be configured through the `agent` key in `openscience.json`.
 
@@ -390,8 +399,8 @@ The root `AGENTS.md` is therefore loaded into OpenScience sessions as project gu
 Trace unexpected behavior in this order:
 
 1. Check the active agent in `src/agent/agent.ts`, including its mode, model, prompt, permissions, and step limit.
-2. Follow agent workflow injection in `src/session/prompt.ts`.
-3. Follow provider-level system prompt selection in `src/session/system.ts`.
+2. If the registry supplies `Agent.Info.prompt`, follow its system-prompt delivery in `src/session/llm.ts`; otherwise follow provider selection in `src/session/system.ts`.
+3. For user-role workflow reminders, follow `insertReminders` in `src/session/prompt.ts`.
 4. Check root and nested project guidance through `src/session/instruction.ts`.
 
 | Symptom | Likely cause | Where to inspect |
@@ -410,7 +419,7 @@ Trace unexpected behavior in this order:
 Run from the repository root:
 
 ```bash
-if rg -n "CLAUDE.md" ARCHITECTURE.md; then exit 1; fi
+if rg -n '\[CLAUDE\.md\]\([^)]*\)' ARCHITECTURE.md; then exit 1; fi
 rg -n "Provider-level system prompts|Agent workflow prompts|Repository instruction loading|Prompt debugging" ARCHITECTURE.md
 rg -n '"AGENTS.md"|"CLAUDE.md"|"CONTEXT.md"' backend/cli/src/session/instruction.ts
 git diff --check
@@ -444,9 +453,9 @@ Run from the repository root:
 
 ```bash
 git diff --check
-git diff --name-only HEAD~3..HEAD
-git diff HEAD~3..HEAD -- AGENTS.md CLAUDE.md backend/cli/AGENTS.md frontend/workspace/AGENTS.md ARCHITECTURE.md
-git diff --quiet HEAD~3..HEAD -- backend/cli/src/agent backend/cli/src/session frontend/workspace/src/atlas
+git diff --name-only 42448f1
+git diff 42448f1 -- AGENTS.md CLAUDE.md backend/cli/AGENTS.md frontend/workspace/AGENTS.md ARCHITECTURE.md docs/superpowers/plans/2026-07-13-dual-workspace-instructions.md
+git diff --quiet 42448f1 -- backend/cli/src/agent backend/cli/src/session frontend/workspace/src/atlas
 git status --short
 ```
 
@@ -459,7 +468,7 @@ OpenScience browser workspace: native research runtime remains authoritative.
 OpenScience terminal CLI: native research runtime remains authoritative.
 ```
 
-Expected: `HEAD~3..HEAD` lists exactly the five planned instruction/documentation files; the runtime-source `git diff --quiet` command exits 0; the working tree contains no unrelated changes.
+Expected: the diff from implementation base `42448f1` lists exactly the five instruction/documentation files plus this corrected implementation plan; the runtime-source `git diff --quiet` command exits 0; the working tree contains no unrelated changes.
 
 - [ ] **Step 7: Commit the architecture migration**
 
@@ -477,4 +486,4 @@ git status --short --branch
 git log -5 --oneline --decorate
 ```
 
-Expected: the working tree is clean on `codex/dual-workspace-instructions`; the three implementation commits follow the approved design and plan commits; no merge or push has occurred.
+Expected: the working tree is clean on `codex/dual-workspace-instructions`; the implementation commits follow the approved design and plan commits; no merge or push has occurred.
