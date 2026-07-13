@@ -1,26 +1,6 @@
 /* ==========================================================
-   Synthetic Sciences — Atlas-style design system
-
-   Adapted from Atlas "Obsidian Glass" tokens. Frosted-glass
-   panels over a quiet background mesh. Mono-first typography
-   for instrument-readout density. 4px controls, 8px surfaces.
+   PandaScience workspace design aliases
    ========================================================== */
-
-/* Computer Modern (SIL OFL, see /fonts/cmc/OFL.md). Self-hosted, regular + bold. */
-@font-face {
-  font-family: "Computer Modern";
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url("/fonts/cmc/cmunorm.woff2") format("woff2");
-}
-@font-face {
-  font-family: "Computer Modern";
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-  src: url("/fonts/cmc/cmunobx.woff2") format("woff2");
-}
 
 :root {
   /* The app's --color-* namespace is a thin ALIAS layer over the @synsci/ui
@@ -30,7 +10,7 @@
      picking a different theme restyles the whole app coherently. */
   --color-bg: var(--background-base);
   --color-bg-subtle: var(--background-weak);
-  --color-bg-elevated: var(--input-disabled);
+  --color-bg-elevated: var(--background-weak);
   --color-surface: var(--surface-raised-strong);
   --color-surface-solid: var(--surface-raised-stronger-non-alpha);
   --color-border: var(--border-base);
@@ -38,23 +18,20 @@
   --color-text: var(--text-strong);
   --color-text-muted: var(--text-weak);
   --color-text-faint: var(--text-weaker);
-  --color-accent: var(--text-strong);
-  --color-accent-hover: var(--text-base);
-  --color-accent-subtle: var(--surface-base-hover);
-  --color-focus: var(--border-selected);
-  --color-on-accent: var(--background-base);
+  --color-accent: var(--surface-brand-base);
+  --color-accent-hover: var(--surface-brand-hover);
+  --color-accent-subtle: var(--surface-base-interactive-active);
+  --color-focus: var(--surface-brand-base);
+  --color-on-accent: #ffffff;
   --glass-bg: rgba(255, 255, 255, 0.85);
   --glass-border: rgba(0, 0, 0, 0.1);
   --glass-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 4px 12px rgba(0, 0, 0, 0.03);
   --glass-blur: 20px;
 
-  /* Radius — one crisp system: 4px controls, 8px overlays (modals, dialogs,
-     drawers); circular only for toggles/dots/avatars. Sharp + consistent is the
-     product's identity — refined, not rounded into a generic look. */
-  --radius: 4px;
-  --radius-sm: 4px;
-  --radius-xs: 4px;
-  --radius-lg: 8px;
+  --radius: 8px;
+  --radius-sm: 8px;
+  --radius-xs: 8px;
+  --radius-lg: 16px;
 
   --color-success: var(--surface-success-strong);
   --color-success-muted: var(--surface-success-weak);
@@ -79,7 +56,7 @@
   --space-7: 48px;
   --space-8: 64px;
 
-  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-xs: var(--evidence-shadow-panel);
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
   --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.06);
 
@@ -92,15 +69,13 @@
   --text-xl: 16px;
   --text-2xl: 20px;
 
-  --font-sans: "Computer Modern", "Latin Modern Roman", Georgia, "Times New Roman", serif;
-  --font-serif: "Computer Modern", "Latin Modern Roman", Georgia, "Times New Roman", serif;
+  --font-sans: var(--font-family-sans);
+  --font-serif: var(--font-family-serif);
   /* Code font: single source. --font-family-mono is owned by @synsci/ui theme.css
      and written at runtime by the Settings mono-font picker (self-hosted Nerd
      Font families) — everything code-shaped routes through it. */
   --font-code: var(--font-family-mono);
-  --font-ui-sans: "Computer Modern", "Latin Modern Roman", Georgia, "Times New Roman", serif;
-  /* Bridge @synsci/ui (SessionTurn chat transcript) typography to Computer Modern */
-  --font-family-sans: "Computer Modern", "Latin Modern Roman", Georgia, serif;
+  --font-ui-sans: var(--font-family-sans);
 
   --z-header: 20;
   --z-sticky: 50;
@@ -109,7 +84,7 @@
   --z-modal: 300;
   --z-toast: 400;
 
-  --agent-bubble-radius: 4px;
+  --agent-bubble-radius: var(--radius);
   --agent-bubble-pad-x: 14px;
   --agent-bubble-pad-y: 11px;
   --agent-gap: 14px;
@@ -189,33 +164,6 @@
   height: min(calc(100vh - 48px), 800px);
 }
 
-:root.dark,
-.dark,
-html[data-color-scheme="dark"] {
-  /* --color-* aliases resolve through the mode-aware semantic tokens, so only
-     the values with no semantic source live here. */
-  --glass-bg: rgba(23, 23, 23, 0.9);
-  --glass-border: rgba(255, 255, 255, 0.12);
-  --glass-shadow: 0 1px 3px rgba(0, 0, 0, 0.3), 0 4px 12px rgba(0, 0, 0, 0.2);
-
-  --kind-insight: #a596b8;
-  --kind-insight-bg: rgba(165, 150, 184, 0.12);
-  --kind-empirical: #fb923c;
-  --kind-empirical-bg: rgba(251, 146, 60, 0.1);
-  --kind-untyped: #a1a1aa;
-  --kind-untyped-bg: rgba(161, 161, 170, 0.1);
-
-  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.2);
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4), 0 1px 3px rgba(0, 0, 0, 0.3);
-
-  --agent-code-bg: #060608;
-  --agent-code-bg-soft: #0d0d11;
-  --agent-code-border: rgba(255, 255, 255, 0.05);
-
-  --logo-filter: invert(1);
-}
-
 /* ==========================================================
    Base — flat, quiet canvas. (The colored ambient mesh that used
    to sit here read as a random gradient bleeding around the chat
@@ -278,11 +226,6 @@ html[data-color-scheme="dark"] {
   backdrop-filter: blur(14px) saturate(1.2);
   -webkit-backdrop-filter: blur(14px) saturate(1.2);
   border-bottom: 1px solid var(--color-border);
-}
-
-.dark .g-strip,
-html[data-color-scheme="dark"] .g-strip {
-  background: rgba(23, 23, 23, 0.7);
 }
 
 .g-composer {
@@ -474,11 +417,6 @@ html[data-color-scheme="dark"] .g-strip {
 .atlas-agent-orbit {
   filter: drop-shadow(0 0 6px color-mix(in srgb, var(--color-focus) 25%, transparent));
 }
-.dark .atlas-agent-orbit,
-html[data-color-scheme="dark"] .atlas-agent-orbit {
-  filter: drop-shadow(0 0 8px color-mix(in srgb, var(--color-focus) 35%, transparent));
-}
-
 @keyframes atlas-glow {
   0%,
   100% {
@@ -977,11 +915,6 @@ html[data-color-scheme="dark"] .atlas-agent-orbit {
   -webkit-backdrop-filter: blur(2px);
   z-index: var(--z-overlay);
   animation: atlas-fade-in 200ms ease;
-}
-
-.dark .atlas-overlay,
-html[data-color-scheme="dark"] .atlas-overlay {
-  background: rgba(0, 0, 0, 0.55);
 }
 
 .atlas-modal {

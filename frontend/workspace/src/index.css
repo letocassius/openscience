@@ -1,18 +1,17 @@
+@import "@fontsource/roboto/400.css";
+@import "@fontsource/roboto/500.css";
+@import "@fontsource/roboto/700.css";
 @import "@synsci/ui/styles/tailwind";
 @import "./styles/atlas.css";
 @import "./styles/evidence.css";
 
 /*
-  PandaScience editorial typography.
-
-  Computer Modern (Latin Modern Roman) remains an intentional heading face;
-  body and control text use the locally supported UI sans stack, while the
-  configured mono family is reserved for code. Kept in @layer base with
-  bare-element selectors so any component class or inline style still wins.
+  PandaScience interface typography. Roboto is shared by headings, body text,
+  and controls; the configured mono family remains reserved for code and
+  technical labels. Kept in @layer base with bare-element selectors so any
+  component class or inline style still wins.
 */
 @layer base {
-  /* Computer Modern ships 400 + 700 only — declare the weights that actually
-     render (intermediate weights would silently map onto these anyway). */
   h1,
   h2,
   h3,

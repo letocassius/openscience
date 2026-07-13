@@ -36,6 +36,7 @@
   },
   "dependencies": {
     "3dmol": "^2.5.5",
+    "@fontsource/roboto": "5.2.10",
     "@kobalte/core": "catalog:",
     "@rdkit/rdkit": "^2025.3.4-1.0.0",
     "@synsci/sdk": "workspace:*",
