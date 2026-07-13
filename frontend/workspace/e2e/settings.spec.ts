@@ -86,6 +86,18 @@ test("smoke settings dialog opens, switches tabs, closes", async ({ page, gotoSe
   await expect(dialog.getByText(/^language$/i).first()).toBeVisible()
   await expect(dialog.getByText("Appearance", { exact: true })).toHaveCount(0)
   await expect(dialog.getByText("Dark", { exact: true })).toHaveCount(0)
+  const languageHeading = dialog.getByRole("heading", { name: /^language$/i })
+  const languageLabel = dialog
+    .locator("span")
+    .filter({ hasText: /^language$/i })
+    .first()
+  const languageMetadata = dialog.getByText("change the display language for OpenScience", { exact: true })
+  const languageTypography = await Promise.all(
+    [languageHeading, languageLabel, languageMetadata].map((element) =>
+      element.evaluate((node) => getComputedStyle(node).fontSize),
+    ),
+  )
+  expect(languageTypography).toEqual(["14px", "14px", "12px"])
   const legacyCard = dialog.locator('[class~="rounded-[4px]"]').first()
   const cardStyle = await legacyCard.evaluate((element) => {
     const style = getComputedStyle(element)

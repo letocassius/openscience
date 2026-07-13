@@ -51,6 +51,17 @@ const SETTINGS_STYLES = `
   background-color: var(--surface-raised-stronger-non-alpha);
 }
 
+.settings-dialog .text-13-regular,
+.settings-dialog .text-13-medium,
+.settings-dialog .text-14-regular,
+.settings-dialog .text-14-medium {
+  font-size: 14px;
+}
+.settings-dialog .text-12-regular,
+.settings-dialog .text-12-medium {
+  font-size: 12px;
+}
+
 /* ── Fixed modal frame ──────────────────────────────────────────────────────
    The settings modal is ONE size regardless of the active panel. The rail +
    header stay fixed; only each panel body scrolls inside this frame. Without

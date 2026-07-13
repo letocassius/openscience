@@ -106,7 +106,7 @@ export const AppearanceSections: Component = () => {
 
   return (
     <div class="flex flex-col gap-8 w-full max-w-[760px]">
-      {/* Appearance Section */}
+      {/* Language Section */}
       <div class="flex flex-col gap-3">
         <h3 class="text-13-medium text-text-weak tracking-wide">{language.t("settings.general.row.language.title")}</h3>
 

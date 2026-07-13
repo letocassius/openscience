@@ -126,7 +126,7 @@ export function RightPane(): JSX.Element {
           on:pointercancel={onHandlePointerUp}
           style={{
             position: "absolute",
-            left: "-3px",
+            left: 0,
             top: 0,
             width: "6px",
             height: "100%",
