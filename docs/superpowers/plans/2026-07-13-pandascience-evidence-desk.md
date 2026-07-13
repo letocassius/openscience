@@ -63,8 +63,6 @@ test("renders the PandaScience product identity", async ({ page }) => {
 
   await expect(page).toHaveTitle("PandaScience")
   await expect(page.getByRole("button", { name: "PandaScience" }).first()).toBeVisible()
-  await expect(page.getByText("Insilico Medicine", { exact: true })).toBeVisible()
-  await expect(page.locator(".evidence-root")).toBeVisible()
 })
 ```
 
@@ -72,7 +70,7 @@ test("renders the PandaScience product identity", async ({ page }) => {
 
 Run: `cd frontend/workspace && bun run test -- e2e/branding.spec.ts`
 
-Expected: FAIL because the document title and wordmark still say `OpenScience` and `.evidence-root` does not exist.
+Expected: FAIL because the document title and wordmark still say `OpenScience`.
 
 - [ ] **Step 3: Add the brand constants**
 
@@ -103,7 +101,7 @@ Set `<title>PandaScience</title>` in `frontend/workspace/index.html`; replace th
 
 Run: `cd frontend/workspace && bun run test -- e2e/branding.spec.ts`
 
-Expected: The brand assertions pass once the Evidence Desk root hook and company label are added in Task 3; until then only those two assertions remain failing for the named missing elements.
+Expected: PASS.
 
 - [ ] **Step 7: Commit the brand contract**
 
@@ -129,8 +127,8 @@ git commit -m "feat: introduce PandaScience workspace branding"
 - [ ] **Step 1: Extend the branding test with computed-style assertions**
 
 ```ts
-const root = page.locator(".evidence-root")
-await expect(root).toHaveCSS("background-color", "rgb(250, 250, 250)")
+const canvas = await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue("--evidence-canvas").trim())
+expect(canvas).toBe("#fafafa")
 const header = page.locator(".evidence-header")
 await expect(header).toHaveCSS("min-height", "56px")
 ```
@@ -202,7 +200,7 @@ Retain the existing global `:focus-visible` ring and ensure the green primary bu
 
 Run: `cd frontend/workspace && bun run typecheck && bun run test -- e2e/branding.spec.ts`
 
-Expected: Typecheck passes; Evidence Desk root assertions still wait only for the Task 3 root and company-label hooks.
+Expected: Typecheck and the Evidence Desk token/header assertions pass.
 
 - [ ] **Step 8: Commit the style layer**
 
@@ -230,6 +228,7 @@ git commit -m "feat: add Evidence Desk design system"
 test("home renders the Evidence Desk project registry", async ({ page }) => {
   await page.goto("/")
 
+  await expect(page.locator(".evidence-root")).toBeVisible()
   await expect(page.getByRole("heading", { name: "Research projects" })).toBeVisible()
   await expect(page.getByPlaceholder("Search projects")).toBeVisible()
   await expect(page.getByRole("button", { name: "New project" })).toBeVisible()
