@@ -35,13 +35,15 @@ test("uses green structural accents on the project registry", async ({ page }) =
       primary: getComputedStyle(primary).backgroundColor,
       label: getComputedStyle(label).color,
       panel: getComputedStyle(panel).borderTopColor,
+      card: getComputedStyle(card).borderTopColor,
       shadow: getComputedStyle(card).boxShadow,
     }
   })
 
   expect(colors).toBeDefined()
   expect(colors?.label).toBe(colors?.primary)
-  expect(colors?.panel).toBe(colors?.primary)
+  expect(colors?.panel).not.toBe(colors?.primary)
+  expect(colors?.card).not.toBe(colors?.primary)
   expect(colors?.shadow).toBe("none")
 })
 

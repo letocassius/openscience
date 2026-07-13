@@ -273,7 +273,6 @@ export default function Home(): JSX.Element {
           padding: 14px 16px;
           background: var(--evidence-panel);
           border: 1px solid var(--evidence-border);
-          border-top: 3px solid var(--evidence-primary);
           border-radius: var(--evidence-radius-panel);
           box-shadow: var(--evidence-shadow-panel);
         }
@@ -325,7 +324,6 @@ export default function Home(): JSX.Element {
           transition: background var(--evidence-motion), border-color var(--evidence-motion);
         }
         .evidence-home__card {
-          border-top: 2px solid var(--evidence-accent-line);
           box-shadow: none;
         }
         .evidence-home__card:focus-visible,
@@ -334,7 +332,6 @@ export default function Home(): JSX.Element {
           outline-offset: 2px;
         }
         .evidence-home__empty {
-          border-top-color: var(--evidence-primary) !important;
           border-radius: var(--evidence-radius-panel) !important;
         }
         .evidence-home__grid > .evidence-home__empty {
