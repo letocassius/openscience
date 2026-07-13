@@ -227,7 +227,6 @@ export function FolderPicker(props: PickerProps): JSX.Element {
                     sublabel={p.replace(home() + "/", "~/").replace(home(), "~")}
                     active={cwd() === p}
                     onClick={() => goTo(p)}
-                    onDblClick={() => pick(p)}
                   />
                 )}
               </For>
@@ -545,7 +544,7 @@ export function FolderPicker(props: PickerProps): JSX.Element {
               }
             >
               <For each={filtered()}>
-                {(e) => <FolderRow entry={e} onDrill={() => drillInto(e)} onPick={() => pick(e.absolute)} />}
+                {(e) => <FolderRow entry={e} onDrill={() => drillInto(e)} />}
               </For>
             </Show>
           </div>
@@ -594,20 +593,19 @@ export function FolderPicker(props: PickerProps): JSX.Element {
   )
 }
 
-function FolderRow(props: { entry: FolderEntry; onDrill: () => void; onPick: () => void }): JSX.Element {
+function FolderRow(props: { entry: FolderEntry; onDrill: () => void }): JSX.Element {
   const [hover, setHover] = createSignal(false)
   return (
     <div
       role="button"
       tabindex="0"
       onClick={props.onDrill}
-      onDblClick={props.onPick}
-      onKeyDown={(e) => {
-        if (e.key === "Enter") props.onDrill()
+      onKeyDown={(event) => {
+        if (event.key === "Enter") props.onDrill()
       }}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
-      title={`${props.entry.absolute} · click to enter · double-click to open as project`}
+      title={`${props.entry.absolute} · click to enter`}
       style={{
         cursor: "pointer",
         display: "flex",
@@ -634,33 +632,6 @@ function FolderRow(props: { entry: FolderEntry; onDrill: () => void; onPick: () 
       >
         {props.entry.name}
       </span>
-      <button
-        type="button"
-        onClick={(ev) => {
-          ev.stopPropagation()
-          props.onPick()
-        }}
-        title="open this folder as a project"
-        style={{
-          all: "unset",
-          cursor: "pointer",
-          padding: "2px 8px",
-          "border-radius": "4px",
-          "font-family": FONT_MONO,
-          "font-size": "10px",
-          "letter-spacing": "0.08em",
-          "text-transform": "uppercase",
-          color: "var(--color-text-muted)",
-          border: "1px solid var(--color-border)",
-          background: "var(--color-surface-solid)",
-          opacity: hover() ? 1 : 0,
-          transform: hover() ? "translateX(0)" : "translateX(4px)",
-          "pointer-events": hover() ? "auto" : "none",
-          transition: "opacity 160ms ease, transform 160ms ease",
-        }}
-      >
-        open
-      </button>
       <IconChevronRight
         size={11}
         strokeWidth={1.5}
@@ -696,14 +667,12 @@ function SidebarRow(props: {
   sublabel?: string
   active: boolean
   onClick: () => void
-  onDblClick?: () => void
 }): JSX.Element {
   return (
     <div
       role="button"
       tabindex="0"
       onClick={props.onClick}
-      onDblClick={props.onDblClick}
       onKeyDown={(e) => {
         if (e.key === "Enter") props.onClick()
       }}
