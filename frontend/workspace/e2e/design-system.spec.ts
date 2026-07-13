@@ -114,3 +114,53 @@ test("finite Atlas motion consumes the shared duration and easing tokens", async
   ])
   expect(values.entrances).toEqual(Array.from({ length: 7 }, () => "0.2s"))
 })
+
+test("shared dialogs use the PandaScience surface contract", async ({ page }) => {
+  await page.goto("/")
+  await page.getByRole("button", { name: /localhost|127\.0\.0\.1/ }).click()
+
+  const dialog = page.getByRole("dialog")
+  const content = dialog.and(page.locator('[data-slot="dialog-content"]'))
+  await expect(content).toBeVisible()
+  const style = await content.evaluate((element) => {
+    const computed = getComputedStyle(element)
+    const header = getComputedStyle(element.querySelector<HTMLElement>('[data-slot="dialog-header"]')!)
+    const title = getComputedStyle(element.querySelector<HTMLElement>('[data-slot="dialog-title"]')!)
+    return {
+      radius: computed.borderRadius,
+      background: computed.backgroundColor,
+      border: computed.border,
+      shadow: computed.boxShadow,
+      font: computed.fontFamily,
+      headerPadding: header.padding,
+      titleSize: title.fontSize,
+      titleWeight: title.fontWeight,
+      titleLineHeight: title.lineHeight,
+    }
+  })
+  expect(style).toMatchObject({
+    radius: "16px",
+    background: "rgb(255, 255, 255)",
+    border: "1px solid rgb(242, 242, 242)",
+    shadow: "rgba(0, 0, 0, 0.08) 0px 4px 24px 0px",
+    headerPadding: "20px 24px 12px",
+    titleSize: "18px",
+    titleWeight: "700",
+    titleLineHeight: "24.3px",
+  })
+  expect(style.font).toContain("Roboto")
+
+  const overlay = await page.locator('[data-component="dialog-overlay"]').evaluate((element) => {
+    const computed = getComputedStyle(element)
+    return {
+      background: computed.backgroundColor,
+      duration: computed.animationDuration,
+      easing: computed.animationTimingFunction,
+    }
+  })
+  expect(overlay).toEqual({
+    background: "rgba(33, 33, 33, 0.52)",
+    duration: "0.15s",
+    easing: "cubic-bezier(0.4, 0, 0.2, 1)",
+  })
+})

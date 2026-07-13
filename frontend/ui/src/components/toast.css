@@ -26,13 +26,19 @@
   gap: 20px;
   padding: 16px 20px;
   pointer-events: auto;
-  transition: all 150ms ease-out;
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
+    border-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard),
+    opacity var(--duration-fast) var(--ease-standard),
+    transform var(--duration-slow) var(--ease-out-expo);
 
-  border-radius: var(--radius-lg);
+  border-radius: 10px;
   border: 1px solid var(--border-weak-base);
-  background: var(--surface-float-base);
-  color: var(--text-invert-base);
-  box-shadow: var(--shadow-md);
+  background: var(--surface-raised-stronger-non-alpha);
+  color: var(--text-base);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+  font-family: var(--font-family-sans);
 
   [data-slot="toast-inner"] {
     display: flex;
@@ -41,11 +47,11 @@
   }
 
   &[data-opened] {
-    animation: toastPopIn 150ms ease-out;
+    animation: toastPopIn var(--duration-slow) var(--ease-out-expo);
   }
 
   &[data-closed] {
-    animation: toastPopOut 100ms ease-in forwards;
+    animation: toastPopOut var(--duration-fast) var(--ease-standard) forwards;
   }
 
   &[data-swipe="move"] {
@@ -54,24 +60,27 @@
 
   &[data-swipe="cancel"] {
     transform: translateX(0);
-    transition: transform 200ms ease-out;
+    transition: transform var(--duration-slow) var(--ease-out-expo);
   }
 
   &[data-swipe="end"] {
-    animation: toastSwipeOut 100ms ease-out forwards;
+    animation: toastSwipeOut var(--duration-fast) var(--ease-standard) forwards;
   }
 
-  /* &[data-variant="success"] { */
-  /*   border-color: var(--color-semantic-positive); */
-  /* } */
-  /**/
-  /* &[data-variant="error"] { */
-  /*   border-color: var(--color-semantic-danger); */
-  /* } */
-  /**/
-  /* &[data-variant="loading"] { */
-  /*   border-color: var(--color-semantic-info); */
-  /* } */
+  &[data-variant="success"] {
+    border-color: var(--border-success-base);
+    background: var(--surface-success-weak);
+  }
+
+  &[data-variant="error"] {
+    border-color: var(--border-critical-base);
+    background: var(--surface-critical-weak);
+  }
+
+  &[data-variant="loading"] {
+    border-color: var(--border-info-base);
+    background: var(--surface-info-weak);
+  }
 
   [data-slot="toast-icon"] {
     flex-shrink: 0;
@@ -80,9 +89,20 @@
     justify-content: center;
 
     [data-component="icon"] {
-      color: var(--text-invert-stronger);
-      /* color: var(--icon-invert-base); */
+      color: var(--icon-base);
     }
+  }
+
+  &[data-variant="success"] [data-slot="toast-icon"] [data-component="icon"] {
+    color: var(--icon-success-base);
+  }
+
+  &[data-variant="error"] [data-slot="toast-icon"] [data-component="icon"] {
+    color: var(--icon-critical-base);
+  }
+
+  &[data-variant="loading"] [data-slot="toast-icon"] [data-component="icon"] {
+    color: var(--icon-info-base);
   }
 
   [data-slot="toast-content"] {
@@ -94,7 +114,7 @@
   }
 
   [data-slot="toast-title"] {
-    color: var(--text-invert-strong);
+    color: var(--text-strong);
 
     /* text-14-medium */
     font-family: var(--font-family-sans);
@@ -108,7 +128,7 @@
   }
 
   [data-slot="toast-description"] {
-    color: var(--text-invert-base);
+    color: var(--text-base);
     text-wrap-style: pretty;
 
     /* text-14-regular */
@@ -134,7 +154,7 @@
     padding: 0;
     cursor: pointer;
 
-    color: var(--text-invert-weak);
+    color: var(--text-interactive-base);
     font-family: var(--font-family-sans);
     font-size: var(--font-size-base);
     font-weight: var(--font-weight-medium);
@@ -145,8 +165,13 @@
       text-decoration: underline;
     }
 
+    &:focus-visible {
+      outline: 2px solid var(--surface-brand-base);
+      outline-offset: 2px;
+    }
+
     &:first-child {
-      color: var(--text-invert-strong);
+      color: var(--text-interactive-base);
     }
   }
 
@@ -161,15 +186,23 @@
     right: 0;
     height: 3px;
     background-color: var(--surface-base);
-    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+    border-radius: 0 0 10px 10px;
     overflow: hidden;
   }
 
   [data-slot="toast-progress-fill"] {
     height: 100%;
     width: var(--kb-toast-progress-fill-width);
-    background-color: var(--color-primary);
-    transition: width 250ms linear;
+    background-color: var(--surface-brand-base);
+    transition: width var(--duration-slow) linear;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-component="toast"],
+  [data-component="toast"] [data-slot="toast-progress-fill"] {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
   }
 }
 

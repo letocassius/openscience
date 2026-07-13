@@ -4,7 +4,8 @@
   position: fixed;
   inset: 0;
   z-index: 50;
-  background-color: hsl(from var(--background-base) h s l / 0.2);
+  background: rgba(33, 33, 33, 0.52);
+  animation: overlayShow var(--duration-fast) var(--ease-standard);
 }
 
 [data-component="dialog"] {
@@ -45,16 +46,16 @@
         display: none;
       }
 
-      /* padding: 8px; */
-      /* padding: 8px 8px 0 8px; */
+      border: 1px solid var(--border-weak-base);
       border-radius: var(--radius-xl);
       background: var(--surface-raised-stronger-non-alpha);
       background-clip: padding-box;
-      box-shadow: var(--shadow-lg-border-base);
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+      font-family: var(--font-family-sans);
 
       [data-slot="dialog-header"] {
         display: flex;
-        padding: 20px;
+        padding: 20px 24px 12px;
         justify-content: space-between;
         align-items: center;
         flex-shrink: 0;
@@ -63,12 +64,11 @@
         [data-slot="dialog-title"] {
           color: var(--text-strong);
 
-          /* text-16-medium */
           font-family: var(--font-family-sans);
-          font-size: var(--font-size-large);
+          font-size: var(--font-size-x-large);
           font-style: normal;
-          font-weight: var(--font-weight-medium);
-          line-height: var(--line-height-x-large); /* 150% */
+          font-weight: 700;
+          line-height: 1.35;
           letter-spacing: var(--letter-spacing-tight);
         }
         /* [data-slot="dialog-close-button"] {} */
@@ -76,16 +76,13 @@
 
       [data-slot="dialog-description"] {
         display: flex;
-        padding: 16px;
-        padding-left: 24px;
-        padding-top: 0;
-        margin-top: -8px;
+        padding: 0 24px 16px;
         justify-content: space-between;
         align-items: center;
         flex-shrink: 0;
         align-self: stretch;
 
-        color: var(--text-base);
+        color: var(--text-weak);
 
         /* text-14-regular */
         font-family: var(--font-family-sans);
@@ -136,10 +133,24 @@
 }
 
 [data-component="dialog"][data-transition] [data-slot="dialog-content"] {
-  animation: contentHide 100ms ease-in forwards;
+  animation: contentHide var(--duration-fast) var(--ease-standard) forwards;
 
   &[data-expanded] {
-    animation: contentShow 150ms ease-out;
+    animation: contentShow var(--duration-slow) var(--ease-out-expo);
+  }
+}
+
+@media (max-width: 375px) {
+  [data-component="dialog"][data-size] [data-slot="dialog-container"] {
+    width: calc(100vw - 16px);
+    max-height: calc(100dvh - 16px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-component="dialog-overlay"],
+  [data-component="dialog"] [data-slot="dialog-content"] {
+    animation-duration: 0.01ms !important;
   }
 }
 
