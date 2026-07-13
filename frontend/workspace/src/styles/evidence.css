@@ -1,6 +1,7 @@
 :root {
   --evidence-primary: #21965f;
   --evidence-primary-hover: #1c8554;
+  --evidence-on-primary: #ffffff;
   --evidence-selected: #e7f6ee;
   --evidence-canvas: #fafafa;
   --evidence-panel: #ffffff;
@@ -18,6 +19,7 @@
 html[data-color-scheme="dark"] {
   --evidence-primary: var(--surface-brand-base);
   --evidence-primary-hover: var(--surface-brand-hover);
+  --evidence-on-primary: var(--text-on-brand-base);
   --evidence-selected: var(--surface-base-interactive-active);
   --evidence-canvas: var(--background-base);
   --evidence-panel: var(--surface-raised-stronger-non-alpha);
@@ -30,7 +32,7 @@ html[data-color-scheme="dark"] {
 .evidence-root {
   background: var(--evidence-canvas);
   color: var(--evidence-ink);
-  font-family: var(--font-ui-sans, ui-sans-serif, system-ui, sans-serif);
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
 .evidence-header {
@@ -56,7 +58,7 @@ html[data-color-scheme="dark"] {
 }
 
 .evidence-primary {
-  color: #ffffff;
+  color: var(--evidence-on-primary);
   background: var(--evidence-primary);
   border-color: var(--evidence-primary);
   border-radius: var(--evidence-radius-control);
