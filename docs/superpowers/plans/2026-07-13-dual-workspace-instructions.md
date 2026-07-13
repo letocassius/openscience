@@ -337,7 +337,8 @@ User request with an active agent name, such as research
   |     src/session/prompt.ts selects by active agent name
   |
   +-- Project guidance: repository instruction files
-        src/session/instruction.ts loads root and directory-local instructions
+        src/session/instruction.ts loads the winning filename class from the
+        active directory through the worktree, plus applicable on-read guidance
 ```
 
 Repository instructions add project context. They do not select or replace the active runtime agent.
@@ -368,7 +369,7 @@ For agents without an `Agent.Info.prompt`, `src/session/llm.ts` calls `SystemPro
 | `src/agent/prompt/ml.txt` | `ml` specialist |
 | `src/agent/prompt/write.txt` | `write` subagent |
 
-When experimental plan mode is disabled, `insertReminders` also injects `src/session/prompt/plan.txt` for `plan`; it injects `build-switch.txt` when leaving plan mode in either flow. Separately, `src/session/prompt.ts` appends `max-steps.txt` as assistant-role content on an agent's final allowed step.
+When experimental plan mode is disabled, `insertReminders` also injects `src/session/prompt/plan.txt` for `plan` and injects `build-switch.txt` after prior plan activity when the active agent is no longer `plan`. When experimental plan mode is enabled, it injects `build-switch.txt` on exit from `plan` only when the session's plan file exists. Separately, `src/session/prompt.ts` appends `max-steps.txt` as assistant-role content on an agent's final allowed step.
 
 ##### Registry-owned system prompts
 
@@ -386,13 +387,13 @@ The agent registry in `src/agent/agent.ts` defines each `Agent.Info`: name, mode
 
 #### Repository instruction loading
 
-`src/session/instruction.ts` searches the project root in this order and stops after the first filename with matches:
+`src/session/instruction.ts` checks these filename classes in order. For each class, `systemPaths()` walks upward from `Instance.directory` through `Instance.worktree`, then stops after the first class with matches:
 
 1. `AGENTS.md`
 2. `CLAUDE.md`
 3. `CONTEXT.md` (deprecated)
 
-The root `AGENTS.md` is therefore loaded into OpenScience sessions as project guidance. When a tool reads a file below a nested directory, applicable unclaimed nested instruction files are loaded from the file's directory upward as additional local guidance. Neither path changes the active agent selected by the registry.
+`systemPaths()` includes every matching file for the winning filename class along that directory-to-worktree walk. A session launched in `backend/cli`, for example, can initially load both `backend/cli/AGENTS.md` and the root `AGENTS.md`. When a tool reads a file, `resolve()` walks from the file's directory upward through `Instance.directory` and adds only applicable unclaimed instructions that were not already system-loaded or message-loaded. Neither path changes the active agent selected by the registry.
 
 #### Prompt debugging
 
@@ -411,7 +412,8 @@ Trace unexpected behavior in this order:
 | Critique is not triggered | Parent prompt does not require critique | `src/agent/prompt/critique.txt` and the parent prompt |
 | Subagent returns empty | Context exhaustion or an inadequate step limit | Subagent configuration in `src/agent/agent.ts` |
 | Custom agent is missing | Invalid config, mode, or visibility | `openscience.json` and `src/agent/agent.ts` |
-| Wrong project instructions appear | Root precedence or nested discovery loaded another file | `src/session/instruction.ts` |
+| Wrong project instructions appear | Filename-class precedence or directory-to-worktree discovery loaded another file | `src/session/instruction.ts` |
+
 ````
 
 - [ ] **Step 3: Verify documentation ownership and instruction hierarchy**
@@ -422,10 +424,11 @@ Run from the repository root:
 if rg -n '\[CLAUDE\.md\]\([^)]*\)' ARCHITECTURE.md; then exit 1; fi
 rg -n "Provider-level system prompts|Agent workflow prompts|Repository instruction loading|Prompt debugging" ARCHITECTURE.md
 rg -n '"AGENTS.md"|"CLAUDE.md"|"CONTEXT.md"' backend/cli/src/session/instruction.ts
+rg -n "Instance.directory.*Instance.worktree|every matching file|system-loaded or message-loaded" ARCHITECTURE.md
 git diff --check
 ```
 
-Expected: `ARCHITECTURE.md` has no `CLAUDE.md` link; all four architecture subsections are present; instruction source order remains `AGENTS.md`, `CLAUDE.md`, `CONTEXT.md`; `git diff --check` exits 0.
+Expected: `ARCHITECTURE.md` has no `CLAUDE.md` link; all four architecture subsections are present; instruction source order remains `AGENTS.md`, `CLAUDE.md`, `CONTEXT.md`; the directory-to-worktree all-match behavior and on-read exclusions are documented; `git diff --check` exits 0.
 
 - [ ] **Step 4: Run focused runtime regression tests**
 
@@ -435,7 +438,7 @@ Run from `backend/cli`:
 bun test test/session/instruction.test.ts test/agent/agent.test.ts
 ```
 
-Expected: exit 0; instruction tests confirm the root `AGENTS.md` is already included in `systemPaths()` and nested `AGENTS.md` is discovered separately; the no-config default-agent test confirms `research`.
+Expected: exit 0; with a session opened at the fixture root, instruction tests confirm its root `AGENTS.md` is already included in `systemPaths()` while a deeper `AGENTS.md` is discovered on read; the no-config default-agent test confirms `research`.
 
 - [ ] **Step 5: Run the required backend suite**
 
