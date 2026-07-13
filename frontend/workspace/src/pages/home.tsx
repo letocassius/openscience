@@ -11,7 +11,6 @@ import { useGlobalSync } from "@/context/global-sync"
 import { useLayout } from "@/context/layout"
 import { usePlatform } from "@/context/platform"
 import { useLanguage } from "@/context/language"
-import { useTheme } from "@synsci/ui/theme"
 import { Wordmark } from "@/atlas/Wordmark"
 import { AppHeader, HeaderIconButton } from "@/atlas/AppHeader"
 import { toast } from "@/atlas/Toast"
@@ -23,17 +22,14 @@ import { useGlobalKeys } from "@/atlas/useGlobalKeys"
 import { CommandPalette } from "@/atlas/CommandPalette"
 import { HelpOverlay } from "@/atlas/HelpOverlay"
 import { projectPrefs } from "@/atlas/store/projectPrefs"
-import { COMPANY } from "@/brand"
 import { IconStar, IconStarFilled, IconTrash } from "@/atlas/shared/Icon"
 import {
   IconArrowRight,
   IconClock,
   IconFolder,
-  IconMoon,
   IconPlus,
   IconSearch,
   IconSettings,
-  IconSun,
 } from "@/atlas/shared/Icon"
 import { FONT_CODE, FONT_MONO, FONT_SANS, FONT_SERIF } from "@/styles/tokens"
 
@@ -70,7 +66,6 @@ export default function Home(): JSX.Element {
   const navigate = useNavigate()
   const server = useServer()
   const language = useLanguage()
-  const theme = useTheme()
   const homedir = createMemo(() => sync.data.path.home)
   const [filter, setFilter] = createSignal("")
   const VIEW_KEY = "thesis-projects-view-v1"
@@ -175,8 +170,6 @@ export default function Home(): JSX.Element {
     dialog.show(() => <FolderPicker onSelect={resolveResult} />, { onClose: () => resolveResult(null), lite: true })
   }
 
-  const isDark = () => theme.mode() === "dark"
-  const cycleScheme = () => theme.setColorScheme(isDark() ? "light" : "dark")
   useGlobalKeys({ onNew: () => void chooseProject() })
 
   return (
@@ -439,11 +432,6 @@ export default function Home(): JSX.Element {
           <IconPlus size={12} strokeWidth={2} />
           <span class="evidence-home__primary-text">New project</span>
         </button>
-        <HeaderIconButton onClick={cycleScheme} title="toggle theme">
-          <Show when={isDark()} fallback={<IconMoon size={13} strokeWidth={1.5} />}>
-            <IconSun size={13} strokeWidth={1.5} />
-          </Show>
-        </HeaderIconButton>
         <HeaderIconButton onClick={() => dialog.show(() => <DialogSettings />)} title="settings">
           <IconSettings size={13} strokeWidth={1.5} />
         </HeaderIconButton>
@@ -490,7 +478,6 @@ export default function Home(): JSX.Element {
         <Show when={projects().length > 0} fallback={<EmptyHero onChoose={chooseProject} />}>
           <div class="evidence-home__intro">
             <div>
-              <div class="evidence-label">{COMPANY}</div>
               <h1>Research projects</h1>
               <p>Open a workspace to continue an analysis, review evidence, or begin a new scientific inquiry.</p>
             </div>
@@ -1045,7 +1032,6 @@ function EmptyHero(props: { onChoose: () => void }): JSX.Element {
         padding: "clamp(32px, 7vw, 72px)",
       }}
     >
-      <div class="evidence-label">{COMPANY}</div>
       <h1
         style={{
           "font-family": FONT_SANS,

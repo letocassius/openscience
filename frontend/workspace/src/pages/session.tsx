@@ -18,7 +18,6 @@ import { createAutoScroll } from "@synsci/ui/hooks"
 import { useSync } from "@/context/sync"
 import { useSDK } from "@/context/sdk"
 import { useLayout } from "@/context/layout"
-import { useTheme } from "@synsci/ui/theme"
 import { PromptInput } from "@/components/prompt-input"
 import { NewSessionView } from "@/components/session/session-new-view"
 import { AsciiSpinner } from "@/atlas/shared/AsciiSpinner"
@@ -48,8 +47,6 @@ import {
   IconSearch,
   IconBookOpen,
   IconSettings,
-  IconSun,
-  IconMoon,
   IconMessageSquare,
   IconFolderTree,
   IconFile,
@@ -75,7 +72,6 @@ export default function Page(): JSX.Element {
   const sync = useSync()
   const sdk = useSDK()
   const layout = useLayout()
-  const theme = useTheme()
   const dialog = useDialog()
   const [creating, setCreating] = createSignal(false)
 
@@ -366,7 +362,6 @@ export default function Page(): JSX.Element {
   const [stepsExpanded, setStepsExpanded] = createSignal<Record<string, boolean>>({})
   const toggleSteps = (id: string) => setStepsExpanded((prev) => ({ ...prev, [id]: !prev[id] }))
 
-  const isDark = () => theme.mode() === "dark"
   useGlobalKeys({ onNew: () => void newSession() })
 
   // Center-pane tabs. The chat tab is always mounted (so streaming + scroll
@@ -462,12 +457,10 @@ export default function Page(): JSX.Element {
       <Header
         projectName={projectName()}
         projectPath={projectPath()}
-        isDark={isDark()}
         onBack={() => navigate("/")}
         onOpenPalette={() => uiStore.setPaletteOpen(true)}
         onOpenHelp={() => uiStore.setHelpOpen(true)}
         onOpenSettings={() => dialog.show(() => <DialogSettings />)}
-        onToggleTheme={() => theme.setColorScheme(isDark() ? "light" : "dark")}
       />
 
       <div
@@ -950,12 +943,10 @@ function CenterTab(props: {
 function Header(props: {
   projectName: string
   projectPath: string
-  isDark: boolean
   onBack: () => void
   onOpenPalette: () => void
   onOpenHelp: () => void
   onOpenSettings: () => void
-  onToggleTheme: () => void
 }): JSX.Element {
   return (
     <AppHeader>
@@ -1016,11 +1007,6 @@ function Header(props: {
       </HeaderIconButton>
       <HeaderIconButton onClick={props.onOpenSettings} title="settings">
         <IconSettings size={13} strokeWidth={1.5} />
-      </HeaderIconButton>
-      <HeaderIconButton onClick={props.onToggleTheme} title="toggle theme">
-        <Show when={props.isDark} fallback={<IconMoon size={13} strokeWidth={1.5} />}>
-          <IconSun size={13} strokeWidth={1.5} />
-        </Show>
       </HeaderIconButton>
     </AppHeader>
   )

@@ -14,8 +14,17 @@ test("home renders the Evidence Desk project registry", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "Research projects" })).toBeVisible()
   await expect(page.getByPlaceholder("Search projects")).toBeVisible()
   await expect(page.getByRole("button", { name: "New project" })).toBeVisible()
-  await expect(page.getByText("Insilico Medicine", { exact: true })).toBeVisible()
+  await expect(page.getByText("Insilico Medicine", { exact: true })).toHaveCount(0)
   await expect(page.getByRole("button", { name: serverName })).toBeVisible()
+})
+
+test("workspace ignores a saved dark preference and exposes no theme controls", async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem("openscience-color-scheme", "dark"))
+  await page.goto("/")
+
+  await expect(page.locator("html")).toHaveAttribute("data-color-scheme", "light")
+  await expect(page.getByText("Insilico Medicine", { exact: true })).toHaveCount(0)
+  await expect(page.getByTitle("toggle theme")).toHaveCount(0)
 })
 
 test("server picker dialog opens from home", async ({ page }) => {

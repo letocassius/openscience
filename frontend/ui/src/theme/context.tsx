@@ -68,36 +68,40 @@ function cacheThemeVariants(theme: DesktopTheme, themeId: string) {
 
 export const { use: useTheme, provider: ThemeProvider } = createSimpleContext({
   name: "Theme",
-  init: (props: { defaultTheme?: string }) => {
+  init: (props: { defaultTheme?: string; lockedColorScheme?: "light" | "dark" }) => {
+    const locked = props.lockedColorScheme
+    const initialScheme: ColorScheme = locked ?? "system"
     const [store, setStore] = createStore({
       themes: DEFAULT_THEMES as Record<string, DesktopTheme>,
       themeId: props.defaultTheme ?? "openscience",
-      colorScheme: "system" as ColorScheme,
-      mode: getSystemMode(),
+      colorScheme: initialScheme,
+      mode: initialScheme === "system" ? getSystemMode() : initialScheme,
       previewThemeId: null as string | null,
       previewScheme: null as ColorScheme | null,
     })
 
     onMount(() => {
-      const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)")
-      const handler = () => {
-        if (store.colorScheme === "system") {
-          setStore("mode", getSystemMode())
+      if (!locked) {
+        const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)")
+        const handler = () => {
+          if (store.colorScheme === "system") setStore("mode", getSystemMode())
         }
+        mediaQuery.addEventListener("change", handler)
+        onCleanup(() => mediaQuery.removeEventListener("change", handler))
       }
-      mediaQuery.addEventListener("change", handler)
-      onCleanup(() => mediaQuery.removeEventListener("change", handler))
 
       const savedTheme = localStorage.getItem(STORAGE_KEYS.THEME_ID)
       const savedScheme = localStorage.getItem(STORAGE_KEYS.COLOR_SCHEME) as ColorScheme | null
       if (savedTheme && store.themes[savedTheme]) {
         setStore("themeId", savedTheme)
       }
-      if (savedScheme) {
+      if (locked) {
+        localStorage.setItem(STORAGE_KEYS.COLOR_SCHEME, locked)
+        setStore("colorScheme", locked)
+        setStore("mode", locked)
+      } else if (savedScheme) {
         setStore("colorScheme", savedScheme)
-        if (savedScheme !== "system") {
-          setStore("mode", savedScheme)
-        }
+        setStore("mode", savedScheme === "system" ? getSystemMode() : savedScheme)
       }
       const currentTheme = store.themes[store.themeId]
       if (currentTheme) {
@@ -124,9 +128,10 @@ export const { use: useTheme, provider: ThemeProvider } = createSimpleContext({
     }
 
     const setColorScheme = (scheme: ColorScheme) => {
-      setStore("colorScheme", scheme)
-      localStorage.setItem(STORAGE_KEYS.COLOR_SCHEME, scheme)
-      setStore("mode", scheme === "system" ? getSystemMode() : scheme)
+      const next = locked ?? scheme
+      setStore("colorScheme", next)
+      localStorage.setItem(STORAGE_KEYS.COLOR_SCHEME, next)
+      setStore("mode", next === "system" ? getSystemMode() : next)
     }
 
     return {
@@ -149,8 +154,9 @@ export const { use: useTheme, provider: ThemeProvider } = createSimpleContext({
         applyThemeCss(theme, id, previewMode)
       },
       previewColorScheme: (scheme: ColorScheme) => {
-        setStore("previewScheme", scheme)
-        const previewMode = scheme === "system" ? getSystemMode() : scheme
+        const next = locked ?? scheme
+        setStore("previewScheme", next)
+        const previewMode = next === "system" ? getSystemMode() : next
         const id = store.previewThemeId ?? store.themeId
         const theme = store.themes[id]
         if (theme) {
@@ -161,7 +167,7 @@ export const { use: useTheme, provider: ThemeProvider } = createSimpleContext({
         if (store.previewThemeId) {
           setTheme(store.previewThemeId)
         }
-        if (store.previewScheme) {
+        if (store.previewScheme && !locked) {
           setColorScheme(store.previewScheme)
         }
         setStore("previewThemeId", null)
