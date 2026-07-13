@@ -89,8 +89,6 @@
   --agent-bubble-pad-y: 11px;
   --agent-gap: 14px;
   --agent-trace-w: 1px;
-  --agent-ease: cubic-bezier(0.16, 1, 0.3, 1);
-
   --agent-signal: var(--color-text-muted);
   --agent-signal-soft: var(--color-accent-subtle);
   --agent-record: var(--color-text-muted);
@@ -233,8 +231,8 @@
   border: 1px solid var(--color-border);
   border-radius: 14px;
   transition:
-    border-color 120ms ease,
-    box-shadow 160ms ease;
+    border-color var(--duration-fast) var(--ease-standard),
+    box-shadow var(--duration-fast) var(--ease-standard);
   box-shadow: var(--shadow-xs);
 }
 .g-composer:focus-within {
@@ -357,13 +355,13 @@
   animation: atlas-pulse 1.6s ease-in-out infinite;
 }
 .atlas-fade-in {
-  animation: atlas-fade-in 200ms var(--agent-ease);
+  animation: atlas-fade-in var(--duration-slow) var(--ease-standard);
 }
 .atlas-slide-up {
-  animation: atlas-slide-up 240ms var(--agent-ease);
+  animation: atlas-slide-up var(--duration-slow) var(--ease-out-expo);
 }
 .atlas-stagger {
-  animation: atlas-stagger-fade-in 240ms var(--agent-ease);
+  animation: atlas-stagger-fade-in var(--duration-slow) var(--ease-out-expo);
   animation-fill-mode: backwards;
 }
 .atlas-blink {
@@ -382,7 +380,7 @@
 }
 /* Smooth pop for upward-opening menus (model/agent/effort/graph pickers). */
 .atlas-pop-up {
-  animation: atlas-pop-up 150ms var(--agent-ease);
+  animation: atlas-pop-up var(--duration-slow) var(--ease-out-expo);
   transform-origin: bottom left;
   will-change: transform, opacity;
 }
@@ -443,7 +441,7 @@
   background: var(--color-surface-solid);
   color: var(--color-text);
   cursor: pointer;
-  transition: all 120ms ease;
+  transition: all var(--duration-fast) var(--ease-standard);
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -530,7 +528,7 @@
   color: var(--color-text);
   outline: none;
   width: 100%;
-  transition: border-color 120ms ease;
+  transition: border-color var(--duration-fast) var(--ease-standard);
 }
 .atlas-input:focus {
   border-color: var(--color-text-faint);
@@ -551,7 +549,7 @@
   width: 100%;
   resize: none;
   line-height: 1.55;
-  transition: border-color 120ms ease;
+  transition: border-color var(--duration-fast) var(--ease-standard);
 }
 .atlas-textarea:focus {
   border-color: var(--color-text-faint);
@@ -578,7 +576,7 @@
   border: 0;
   width: 100%;
   text-align: left;
-  transition: all 120ms ease;
+  transition: all var(--duration-fast) var(--ease-standard);
 }
 .atlas-nav-item:hover {
   background: var(--color-accent-subtle);
@@ -615,7 +613,7 @@
   flex-direction: column;
   gap: 6px;
   cursor: pointer;
-  transition: all 160ms cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all var(--duration-fast) var(--ease-standard);
   box-shadow: var(--shadow-xs);
 }
 .atlas-rn:hover {
@@ -750,7 +748,7 @@
   text-decoration: underline;
   text-decoration-color: var(--color-text-faint);
   text-underline-offset: 3px;
-  transition: text-decoration-color 120ms ease;
+  transition: text-decoration-color var(--duration-fast) var(--ease-standard);
 }
 .atlas-md a:hover {
   text-decoration-color: var(--color-text);
@@ -896,7 +894,7 @@
   border: 1px solid var(--color-border);
   background: var(--color-surface-solid);
   cursor: pointer;
-  transition: all 120ms ease;
+  transition: all var(--duration-fast) var(--ease-standard);
   text-align: left;
 }
 .atlas-tile:hover {
@@ -914,7 +912,7 @@
   backdrop-filter: blur(2px);
   -webkit-backdrop-filter: blur(2px);
   z-index: var(--z-overlay);
-  animation: atlas-fade-in 200ms ease;
+  animation: atlas-fade-in var(--duration-slow) var(--ease-standard);
 }
 
 .atlas-modal {
@@ -927,7 +925,7 @@
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-md);
-  animation: atlas-scale-in 240ms var(--agent-ease);
+  animation: atlas-scale-in var(--duration-slow) var(--ease-out-expo);
   max-width: 90vw;
   max-height: 90vh;
   overflow: hidden;
@@ -946,7 +944,7 @@
   border-left: 1px solid var(--color-border);
   box-shadow: var(--shadow-md);
   z-index: var(--z-modal);
-  animation: atlas-slide-in-right 240ms var(--agent-ease);
+  animation: atlas-slide-in-right var(--duration-slow) var(--ease-out-expo);
   display: flex;
   flex-direction: column;
 }
@@ -999,7 +997,7 @@
    ========================================================== */
 .atlas-agent-orbit {
   position: relative;
-  transition: transform 200ms ease;
+  transition: transform var(--duration-fast) var(--ease-standard);
 }
 .atlas-agent-orbit:hover {
   transform: scale(1.06);
