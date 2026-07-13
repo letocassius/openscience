@@ -387,12 +387,12 @@ export default function Home(): JSX.Element {
           }
         }
         @media (max-width: 520px) {
-          .evidence-home__primary {
+          .evidence-home__primary--header {
             width: 36px;
             justify-content: center;
             padding: 0;
           }
-          .evidence-home__primary-text {
+          .evidence-home__primary--header .evidence-home__primary-text {
             display: none;
           }
           .evidence-home__intro {
@@ -429,7 +429,7 @@ export default function Home(): JSX.Element {
           <FdaBanner />
         </span>
         <button
-          class="evidence-primary evidence-home__primary"
+          class="evidence-primary evidence-home__primary evidence-home__primary--header"
           aria-label="New project"
           onClick={chooseProject}
           title="open folder (⌘O)"

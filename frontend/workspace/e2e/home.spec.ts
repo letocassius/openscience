@@ -29,3 +29,21 @@ test("server picker dialog opens from home", async ({ page }) => {
   await expect(dialog).toBeVisible()
   await expect(dialog.getByRole("textbox").first()).toBeVisible()
 })
+
+test("mobile empty registry keeps its folder action readable", async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 805 })
+  await page.goto("/")
+  await page.getByTitle("grid view").click()
+
+  const count = await page.locator(".evidence-home__card").count()
+  for (const _ of Array.from({ length: count })) {
+    const card = page.locator(".evidence-home__card").first()
+    await card.hover()
+    await card.getByTitle("remove from list").click()
+  }
+
+  const action = page.getByRole("button", { name: "Choose project folder" })
+  await expect(action).toBeVisible()
+  const box = await action.boundingBox()
+  expect(box?.width).toBeGreaterThan(180)
+})
