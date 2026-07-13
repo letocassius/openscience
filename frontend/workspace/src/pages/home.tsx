@@ -14,7 +14,6 @@ import { useLanguage } from "@/context/language"
 import { useTheme } from "@synsci/ui/theme"
 import { Wordmark } from "@/atlas/Wordmark"
 import { AppHeader, HeaderIconButton } from "@/atlas/AppHeader"
-import { AgentIcon } from "@/atlas/shared/AgentIcon"
 import { toast } from "@/atlas/Toast"
 import { ToastContainer } from "@/atlas/Toast"
 import { DialogSettings } from "@/components/dialog-settings"
@@ -24,6 +23,7 @@ import { useGlobalKeys } from "@/atlas/useGlobalKeys"
 import { CommandPalette } from "@/atlas/CommandPalette"
 import { HelpOverlay } from "@/atlas/HelpOverlay"
 import { projectPrefs } from "@/atlas/store/projectPrefs"
+import { COMPANY } from "@/brand"
 import { IconStar, IconStarFilled, IconTrash } from "@/atlas/shared/Icon"
 import {
   IconArrowRight,
@@ -54,11 +54,10 @@ const ACTION_BUTTON: JSX.CSSProperties = {
 }
 
 /**
- * Home page — Conductor-style project grid backed by openscience's GlobalSync.
+ * Home page — Evidence Desk project registry backed by openscience's GlobalSync.
  *
- * The new visual identity (OpenScience atom + Synthetic Sciences serif wordmark,
- * gradient mesh background, hover-lift cards, blue CTA) sits on top of the
- * unchanged data + navigation flow:
+ * The research registry presentation sits on top of the unchanged data and
+ * navigation flow:
  *  - useGlobalSync.data.project for the recent projects list
  *  - useLayout.projects.open + server.projects.touch for "opened" tracking
  *  - navigate("/${base64(dir)}/session") to land in the working chat
@@ -182,42 +181,220 @@ export default function Home(): JSX.Element {
 
   return (
     <div
-      class="atlas-root"
+      class="atlas-root evidence-root evidence-home"
       style={{
         flex: 1,
         display: "flex",
         "flex-direction": "column",
         "min-height": 0,
         overflow: "hidden",
-        background: "var(--color-bg)",
+        background: "var(--evidence-canvas)",
       }}
     >
+      <style>{`
+        .evidence-home .evidence-header {
+          flex-wrap: nowrap;
+        }
+        .evidence-home__spacer {
+          flex: 1;
+        }
+        .evidence-home__search {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          box-sizing: border-box;
+          width: min(280px, 24vw);
+          min-width: 220px;
+          height: 36px;
+          padding: 0 12px;
+          color: var(--evidence-slate);
+          background: var(--evidence-panel);
+          border: 1px solid var(--evidence-border);
+        }
+        .evidence-home__search:focus-within {
+          border-color: var(--evidence-primary);
+          box-shadow: 0 0 0 3px color-mix(in srgb, var(--evidence-primary) 14%, transparent);
+        }
+        .evidence-home__search input::placeholder {
+          color: var(--evidence-slate);
+        }
+        .evidence-home__primary {
+          display: inline-flex;
+          align-items: center;
+          gap: 7px;
+          box-sizing: border-box;
+          height: 36px;
+          padding: 0 15px;
+          cursor: pointer;
+          font-size: 13px;
+          font-weight: 600;
+          box-shadow: var(--evidence-shadow-panel);
+        }
+        .evidence-home__server {
+          border-radius: var(--evidence-radius-control) !important;
+        }
+        .evidence-home__main {
+          flex: 1;
+          box-sizing: border-box;
+          width: 100%;
+          max-width: 1180px;
+          margin: 0 auto;
+          padding: 48px 32px 80px;
+          overflow-y: auto;
+        }
+        .evidence-home__intro {
+          display: flex;
+          align-items: flex-end;
+          justify-content: space-between;
+          gap: 32px;
+          margin-bottom: 28px;
+        }
+        .evidence-home__intro h1 {
+          margin: 7px 0 8px;
+          color: var(--evidence-ink);
+          font-family: inherit;
+          font-size: clamp(26px, 3vw, 34px);
+          font-weight: 650;
+          letter-spacing: -0.035em;
+          line-height: 1.12;
+        }
+        .evidence-home__intro p {
+          max-width: 650px;
+          margin: 0;
+          color: var(--evidence-slate);
+          font-size: 14px;
+          line-height: 1.6;
+        }
+        .evidence-home__count {
+          display: flex;
+          flex-direction: column;
+          flex-shrink: 0;
+          min-width: 126px;
+          padding: 14px 16px;
+          background: var(--evidence-panel);
+          border: 1px solid var(--evidence-border);
+          border-radius: var(--evidence-radius-panel);
+          box-shadow: var(--evidence-shadow-panel);
+        }
+        .evidence-home__count strong {
+          color: var(--evidence-ink);
+          font-size: 22px;
+          font-weight: 650;
+          line-height: 1;
+        }
+        .evidence-home__count span {
+          margin-top: 6px;
+          color: var(--evidence-slate);
+          font-size: 11px;
+        }
+        .evidence-home__toolbar {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 16px;
+          margin-bottom: 12px;
+        }
+        .evidence-home__toolbar-title {
+          color: var(--evidence-slate);
+          font-size: 12px;
+          font-weight: 600;
+        }
+        .evidence-home__grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+          gap: 14px;
+        }
+        .evidence-home__list {
+          display: flex;
+          flex-direction: column;
+          overflow: hidden;
+        }
+        .evidence-home__card,
+        .evidence-home__row {
+          transition: background var(--evidence-motion), border-color var(--evidence-motion);
+        }
+        .evidence-home__card:focus-visible,
+        .evidence-home__row:focus-visible {
+          outline: 2px solid var(--evidence-primary);
+          outline-offset: 2px;
+        }
+        .evidence-home__empty {
+          border-radius: var(--evidence-radius-panel) !important;
+        }
+        @media (max-width: 760px) {
+          .evidence-home .evidence-header {
+            flex-wrap: wrap;
+            gap: 8px;
+          }
+          .evidence-home__spacer {
+            display: none;
+          }
+          .evidence-home .atlas-wordmark {
+            margin-right: auto;
+          }
+          .evidence-home__fda,
+          .evidence-home__server-name {
+            display: none;
+          }
+          .evidence-home__server {
+            width: 34px !important;
+            height: 32px !important;
+            justify-content: center;
+            padding: 0 !important;
+          }
+          .evidence-home__search {
+            order: 10;
+            flex: 1 0 100%;
+            width: 100%;
+            min-width: 0;
+          }
+          .evidence-home__main {
+            padding: 32px 16px 56px;
+          }
+          .evidence-home__intro {
+            align-items: stretch;
+            gap: 18px;
+          }
+          .evidence-home__count {
+            min-width: 112px;
+          }
+          .evidence-home__grid {
+            grid-template-columns: minmax(0, 1fr);
+          }
+          .evidence-home__row-path {
+            display: none;
+          }
+        }
+        @media (max-width: 520px) {
+          .evidence-home__primary {
+            width: 36px;
+            justify-content: center;
+            padding: 0;
+          }
+          .evidence-home__primary-text {
+            display: none;
+          }
+          .evidence-home__intro {
+            flex-direction: column;
+          }
+          .evidence-home__count {
+            min-width: 0;
+          }
+        }
+      `}</style>
       <ToastContainer />
       <HelpOverlay open={uiStore.helpOpen()} onClose={() => uiStore.setHelpOpen(false)} />
       <CommandPalette open={uiStore.paletteOpen()} onClose={() => uiStore.setPaletteOpen(false)} />
       <DisconnectedPanel />
       <AppHeader>
         <Wordmark size="md" />
-        <span style={{ flex: 1 }} />
-        <div
-          style={{
-            display: "inline-flex",
-            "align-items": "center",
-            gap: "6px",
-            height: "32px",
-            "box-sizing": "border-box",
-            padding: "0 10px",
-            "border-radius": "4px",
-            border: "1px solid var(--color-border)",
-            background: "var(--color-surface-solid)",
-            "min-width": "240px",
-          }}
-        >
+        <span class="evidence-home__spacer" />
+        <div class="evidence-control evidence-home__search">
           <IconSearch size={12} strokeWidth={1.5} />
           <input
             value={filter()}
             onInput={(e) => setFilter(e.currentTarget.value)}
-            placeholder="search projects…"
+            placeholder="Search projects"
             style={{
               all: "unset",
               flex: 1,
@@ -227,30 +404,22 @@ export default function Home(): JSX.Element {
             }}
           />
         </div>
-        <FdaBanner />
+        <span class="evidence-home__fda">
+          <FdaBanner />
+        </span>
         <button
+          class="evidence-primary evidence-home__primary"
+          aria-label="New project"
           onClick={chooseProject}
           title="open folder (⌘O)"
           style={{
-            all: "unset",
             cursor: "pointer",
-            display: "inline-flex",
-            "align-items": "center",
-            gap: "6px",
-            height: "32px",
-            "box-sizing": "border-box",
-            padding: "0 14px",
-            "border-radius": "4px",
-            background: "var(--color-accent)",
-            color: "var(--color-on-accent)",
+            border: "1px solid var(--evidence-primary)",
             "font-family": FONT_SANS,
-            "font-size": "13px",
-            "font-weight": 400,
-            "box-shadow": "var(--shadow-sm)",
           }}
         >
           <IconPlus size={12} strokeWidth={2} />
-          new project
+          <span class="evidence-home__primary-text">New project</span>
         </button>
         <HeaderIconButton onClick={cycleScheme} title="toggle theme">
           <Show when={isDark()} fallback={<IconMoon size={13} strokeWidth={1.5} />}>
@@ -261,6 +430,8 @@ export default function Home(): JSX.Element {
           <IconSettings size={13} strokeWidth={1.5} />
         </HeaderIconButton>
         <button
+          class="evidence-control evidence-home__server"
+          aria-label={server.name}
           onClick={() => dialog.show(() => <DialogSelectServer />)}
           title={`server · ${server.name}`}
           style={{
@@ -272,7 +443,7 @@ export default function Home(): JSX.Element {
             height: "32px",
             "box-sizing": "border-box",
             padding: "0 10px",
-            "border-radius": "4px",
+            "border-radius": "8px",
             border: "1px solid var(--color-border)",
             background: "var(--color-surface-solid)",
             "font-family": FONT_MONO,
@@ -293,55 +464,25 @@ export default function Home(): JSX.Element {
                     : "var(--color-text-faint)",
             }}
           />
-          {server.name}
+          <span class="evidence-home__server-name">{server.name}</span>
         </button>
       </AppHeader>
 
-      <main
-        class="atlas-scroll"
-        style={{
-          flex: 1,
-          "overflow-y": "auto",
-          padding: "44px 32px 80px",
-          "max-width": "1240px",
-          margin: "0 auto",
-          width: "100%",
-          "box-sizing": "border-box",
-        }}
-      >
+      <main class="atlas-scroll evidence-home__main">
         <Show when={projects().length > 0} fallback={<EmptyHero onChoose={chooseProject} />}>
-          <div
-            style={{
-              display: "flex",
-              "align-items": "baseline",
-              "justify-content": "space-between",
-              gap: "14px",
-              "margin-bottom": "16px",
-            }}
-          >
-            <div style={{ display: "flex", "align-items": "baseline", gap: "9px" }}>
-              <h1
-                style={{
-                  "font-family": FONT_SANS,
-                  "font-size": "17px",
-                  "font-weight": 700,
-                  "letter-spacing": "-0.01em",
-                  margin: 0,
-                  color: "var(--color-text)",
-                }}
-              >
-                Projects
-              </h1>
-              <span
-                style={{
-                  "font-family": FONT_MONO,
-                  "font-size": "11px",
-                  color: "var(--color-text-faint)",
-                }}
-              >
-                {projects().length}
-              </span>
+          <div class="evidence-home__intro">
+            <div>
+              <div class="evidence-label">{COMPANY}</div>
+              <h1>Research projects</h1>
+              <p>Open a workspace to continue an analysis, review evidence, or begin a new scientific inquiry.</p>
             </div>
+            <div class="evidence-home__count" aria-label={`${projects().length} projects`}>
+              <strong>{projects().length}</strong>
+              <span>active workspaces</span>
+            </div>
+          </div>
+          <div class="evidence-home__toolbar">
+            <span class="evidence-home__toolbar-title">Project registry</span>
             <ViewToggle view={view()} onChange={setView} />
           </div>
           <Show
@@ -351,15 +492,7 @@ export default function Home(): JSX.Element {
             <Show
               when={view() === "grid"}
               fallback={
-                <div
-                  style={{
-                    display: "flex",
-                    "flex-direction": "column",
-                    border: "1px solid var(--color-border)",
-                    "border-radius": "4px",
-                    overflow: "hidden",
-                  }}
-                >
+                <div class="evidence-panel evidence-home__list">
                   <For each={filtered()}>
                     {(p, i) => (
                       <ProjectRow
@@ -383,13 +516,7 @@ export default function Home(): JSX.Element {
                 </div>
               }
             >
-              <div
-                style={{
-                  display: "grid",
-                  "grid-template-columns": "repeat(auto-fill, minmax(264px, 1fr))",
-                  gap: "10px",
-                }}
-              >
+              <div class="evidence-home__grid">
                 <For each={filtered()}>
                   {(p) => (
                     <ProjectCard
@@ -422,10 +549,10 @@ export default function Home(): JSX.Element {
 function NoProjectMatches(props: { query: string; onClear: () => void; onChoose: () => void }): JSX.Element {
   return (
     <div
+      class="evidence-panel evidence-home__empty"
       style={{
         padding: "42px 20px",
         border: "1px dashed var(--color-border-strong)",
-        "border-radius": "4px",
         background: "var(--color-surface-solid)",
         display: "flex",
         "flex-direction": "column",
@@ -448,11 +575,11 @@ function NoProjectMatches(props: { query: string; onClear: () => void; onChoose:
         Nothing matched <code style={{ "font-family": FONT_CODE }}>{props.query}</code>.
       </div>
       <div style={{ display: "flex", gap: "8px" }}>
-        <button type="button" onClick={props.onClear} style={emptyButton()}>
-          clear search
+        <button class="evidence-control" type="button" onClick={props.onClear} style={emptyButton()}>
+          Clear search
         </button>
-        <button type="button" onClick={props.onChoose} style={emptyButton(true)}>
-          open folder
+        <button class="evidence-primary" type="button" onClick={props.onChoose} style={emptyButton(true)}>
+          Choose folder
         </button>
       </div>
     </div>
@@ -464,10 +591,10 @@ function emptyButton(primary = false): JSX.CSSProperties {
     all: "unset",
     cursor: "pointer",
     padding: "6px 12px",
-    "border-radius": "4px",
-    border: primary ? "1px solid var(--color-accent)" : "1px solid var(--color-border)",
-    background: primary ? "var(--color-accent)" : "var(--color-bg-elevated)",
-    color: primary ? "var(--color-on-accent)" : "var(--color-text)",
+    "border-radius": "8px",
+    border: primary ? "1px solid var(--evidence-primary)" : "1px solid var(--evidence-border)",
+    background: primary ? "var(--evidence-primary)" : "var(--evidence-panel)",
+    color: primary ? "var(--evidence-on-primary)" : "var(--evidence-ink)",
     "font-family": FONT_MONO,
     "font-size": "11px",
     "font-weight": 400,
@@ -502,18 +629,15 @@ function ProjectCard(props: {
       }}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
-      class="atlas-stagger"
+      class="atlas-stagger evidence-panel evidence-home__card"
       style={{
         cursor: "pointer",
         display: "flex",
         "flex-direction": "column",
-        gap: "8px",
-        padding: "13px 15px",
-        background: hover() ? "var(--color-bg-elevated)" : "var(--color-surface-solid)",
-        border: "1px solid var(--color-border)",
-        "border-radius": "4px",
-        transition: "border-color 140ms ease, background 140ms ease",
-        "border-color": hover() ? "var(--color-border-strong)" : "var(--color-border)",
+        gap: "14px",
+        padding: "20px",
+        background: hover() || props.isFavorite ? "var(--evidence-selected)" : "var(--evidence-panel)",
+        "border-color": hover() ? "var(--evidence-primary)" : "var(--evidence-border)",
         position: "relative",
         overflow: "hidden",
       }}
@@ -576,8 +700,8 @@ function ProjectCard(props: {
       <div
         style={{
           position: "absolute",
-          top: "10px",
-          right: "10px",
+          top: "16px",
+          right: "16px",
           display: "flex",
           gap: "4px",
           opacity: hover() || props.isFavorite ? 1 : 0,
@@ -681,6 +805,7 @@ function ViewToggle(props: { view: "grid" | "list"; onChange: (v: "grid" | "list
   })
   return (
     <div
+      class="evidence-control"
       style={{
         display: "inline-flex",
         gap: "2px",
@@ -743,6 +868,7 @@ function ProjectRow(props: {
   }
   return (
     <div
+      class="evidence-home__row"
       role="button"
       tabindex="0"
       onClick={props.onOpen}
@@ -759,10 +885,9 @@ function ProjectRow(props: {
         display: "flex",
         "align-items": "center",
         gap: "10px",
-        padding: "6px 14px",
+        padding: "14px 18px",
         "border-bottom": props.last ? "none" : "1px solid var(--color-border)",
-        background: hover() ? "var(--color-bg-elevated)" : "transparent",
-        transition: "background 120ms ease",
+        background: hover() || props.isFavorite ? "var(--evidence-selected)" : "transparent",
       }}
     >
       <FolderGlyph />
@@ -783,6 +908,7 @@ function ProjectRow(props: {
         </span>
       </Show>
       <span
+        class="evidence-home__row-path"
         style={{
           flex: 1,
           "min-width": 0,
@@ -866,7 +992,7 @@ function NewProjectCard(props: { onClick: () => void }): JSX.Element {
       onClick={props.onClick}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
-      class="atlas-stagger"
+      class="atlas-stagger evidence-home__empty"
       style={{
         all: "unset",
         cursor: "pointer",
@@ -875,16 +1001,16 @@ function NewProjectCard(props: { onClick: () => void }): JSX.Element {
         "align-items": "center",
         "justify-content": "center",
         gap: "6px",
-        padding: "13px 15px",
+        padding: "20px",
         background: "transparent",
         border: hover() ? "1px dashed var(--color-text-faint)" : "1px dashed var(--color-border-strong)",
-        "border-radius": "4px",
+        "border-radius": "16px",
         color: hover() ? "var(--color-text)" : "var(--color-text-faint)",
         transition: "border-color 160ms ease, color 160ms ease",
       }}
     >
       <IconPlus size={15} strokeWidth={2} />
-      <span style={{ "font-family": FONT_SANS, "font-size": "13px", "font-weight": 400 }}>new project</span>
+      <span style={{ "font-family": FONT_SANS, "font-size": "13px", "font-weight": 600 }}>Add project</span>
     </button>
   )
 }
@@ -892,76 +1018,65 @@ function NewProjectCard(props: { onClick: () => void }): JSX.Element {
 function EmptyHero(props: { onChoose: () => void }): JSX.Element {
   return (
     <div
-      class="atlas-fade-in"
+      class="atlas-fade-in evidence-panel evidence-home__empty"
       style={{
         display: "flex",
         "flex-direction": "column",
-        "align-items": "center",
+        "align-items": "flex-start",
         "justify-content": "center",
-        gap: "20px",
-        padding: "100px 24px 64px",
-        "text-align": "center",
+        gap: "14px",
+        padding: "clamp(32px, 7vw, 72px)",
       }}
     >
-      <AgentIcon size={56} animated={false} strokeWidth={1.0} />
+      <div class="evidence-label">{COMPANY}</div>
       <h1
         style={{
-          "font-family": FONT_SERIF,
-          "font-size": "48px",
-          "font-weight": 400,
-          "letter-spacing": "-0.025em",
+          "font-family": FONT_SANS,
+          "font-size": "clamp(30px, 5vw, 44px)",
+          "font-weight": 650,
+          "letter-spacing": "-0.04em",
           "line-height": 1.1,
           margin: 0,
-          color: "var(--color-text)",
+          color: "var(--evidence-ink)",
         }}
       >
-        Start a project
+        Research projects
       </h1>
       <p
         style={{
           "font-family": FONT_SANS,
           "font-size": "15px",
           "line-height": 1.55,
-          color: "var(--color-text-muted)",
-          "max-width": "500px",
+          color: "var(--evidence-slate)",
+          "max-width": "650px",
           margin: 0,
         }}
       >
-        Pick a folder to work in — your sessions stay organized around it.
+        Open a workspace to continue an analysis, review evidence, or begin a new scientific inquiry.
       </p>
-      <div style={{ display: "flex", gap: "10px", "margin-top": "8px" }}>
+      <div style={{ display: "flex", gap: "10px", "margin-top": "12px" }}>
         <button
+          class="evidence-primary evidence-home__primary"
+          aria-label="Choose project folder"
           onClick={props.onChoose}
           style={{
-            all: "unset",
             cursor: "pointer",
             display: "inline-flex",
             "align-items": "center",
             gap: "8px",
-            padding: "12px 22px",
-            "border-radius": "4px",
-            background: "var(--color-accent)",
-            color: "var(--color-on-accent)",
+            padding: "12px 18px",
+            "border-radius": "8px",
+            background: "var(--evidence-primary)",
+            color: "var(--evidence-on-primary)",
             "font-family": FONT_SANS,
             "font-size": "14px",
             "font-weight": 400,
-            "box-shadow": "var(--shadow-md)",
+            "box-shadow": "var(--evidence-shadow-panel)",
           }}
         >
           <IconFolder size={14} strokeWidth={1.5} />
-          open folder…
+          Choose project folder
         </button>
-      </div>
-      <div
-        style={{
-          "font-family": FONT_MONO,
-          "font-size": "11px",
-          color: "var(--color-text-faint)",
-          "letter-spacing": "0.06em",
-          "margin-top": "16px",
-        }}
-      >
-        ⌘K command palette · ? help
       </div>
     </div>
   )

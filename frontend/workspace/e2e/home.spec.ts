@@ -1,10 +1,20 @@
 import { test, expect } from "./fixtures"
 import { serverName } from "./utils"
 
-test("home renders and shows core entrypoints", async ({ page }) => {
+const SETUP_DISMISS_KEY = "openscience.setup.dismissed"
+
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript((key: string) => localStorage.setItem(key, "1"), SETUP_DISMISS_KEY)
+})
+
+test("home renders the Evidence Desk project registry", async ({ page }) => {
   await page.goto("/")
 
-  await expect(page.getByRole("button", { name: "Open project" }).first()).toBeVisible()
+  await expect(page.locator(".evidence-root")).toBeVisible()
+  await expect(page.getByRole("heading", { name: "Research projects" })).toBeVisible()
+  await expect(page.getByPlaceholder("Search projects")).toBeVisible()
+  await expect(page.getByRole("button", { name: "New project" })).toBeVisible()
+  await expect(page.getByText("Insilico Medicine", { exact: true })).toBeVisible()
   await expect(page.getByRole("button", { name: serverName })).toBeVisible()
 })
 

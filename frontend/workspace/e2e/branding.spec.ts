@@ -8,6 +8,7 @@ test("renders the PandaScience product identity", async ({ page }) => {
 
   await expect(page).toHaveTitle("PandaScience")
   await expect(page.getByRole("button", { name: "PandaScience" }).first()).toBeVisible()
+  await expect(page.getByText("Insilico Medicine", { exact: true })).toBeVisible()
 
   const canvas = await page.evaluate(() =>
     getComputedStyle(document.documentElement).getPropertyValue("--evidence-canvas").trim(),
