@@ -53,7 +53,85 @@ The backend is a Bun and TypeScript application compiled to a single native bina
 
 ### Prompt architecture
 
-Prompts are assembled in two layers: a provider-level system prompt selected by model (`src/session/system.ts`), and an agent-level workflow prompt injected by agent name (`src/session/prompt.ts`). See [CLAUDE.md](CLAUDE.md) for the routing details.
+OpenScience assembles prompts from runtime behavior and project context. These responsibilities are related but distinct:
+
+```text
+User request with an active agent name, such as research
+  |
+  +-- SYSTEM role: provider-level session prompt
+  |     src/session/system.ts selects by model provider
+  |
+  +-- USER role injection: agent workflow prompt
+  |     src/session/prompt.ts selects by active agent name and tier
+  |
+  +-- Project guidance: repository instruction files
+        src/session/instruction.ts loads root and directory-local instructions
+```
+
+Repository instructions add project context. They do not select or replace the active runtime agent.
+
+#### Provider-level system prompts
+
+`src/session/system.ts` routes through `SystemPrompt.provider(model)` to prompts under `src/session/prompt/`:
+
+| File | Purpose |
+| --- | --- |
+| `anthropic.txt` | Claude models |
+| `beast.txt` | GPT-4o, o1, and o3 models |
+| `codex_header.txt` | GPT-5 and Codex models |
+| `gemini.txt` | Gemini models |
+| `qwen.txt` | Qwen and fallback models |
+| `copilot-gpt-5.txt` | Copilot GPT-5 models |
+| `plan.txt`, `plan-reminder-anthropic.txt` | Plan mode |
+| `build-switch.txt`, `max-steps.txt` | Runtime utilities |
+
+#### Agent workflow prompts
+
+`src/session/prompt.ts` injects agent workflow prompts by agent name in `insertReminders`:
+
+| File | Agent role |
+| --- | --- |
+| `src/agent/prompt/research.txt` | `research`, the default harness |
+| `src/agent/prompt/biology.txt` | `biology` specialist |
+| `src/agent/prompt/physics.txt` | `physics` specialist |
+| `src/agent/prompt/ml.txt` | `ml` specialist |
+| `src/agent/prompt/physics-critique.txt` | `physics-critique` subagent |
+| `src/agent/prompt/critique.txt` | `critique` subagent |
+| `src/agent/prompt/reviewer.txt` | `reviewer` subagent |
+| `src/agent/prompt/literature-review.txt` | `literature-review` subagent |
+| `src/agent/prompt/write.txt` | `write` subagent |
+| `src/agent/prompt/explore.txt` | `explore` subagent |
+
+The agent registry in `src/agent/agent.ts` defines each `Agent.Info`: name, mode, visibility, model, prompt, permissions, temperature, and step limit. `research` is the single user-facing default and the plan-exit target. `biology`, `physics`, and `ml` are specialists; `plan` is read-only; hidden task, exploration, review, critique, writing, compaction, and title agents support the runtime. Custom agents can be configured through the `agent` key in `openscience.json`.
+
+#### Repository instruction loading
+
+`src/session/instruction.ts` searches the project root in this order and stops after the first filename with matches:
+
+1. `AGENTS.md`
+2. `CLAUDE.md`
+3. `CONTEXT.md` (deprecated)
+
+The root `AGENTS.md` is therefore loaded into OpenScience sessions as project guidance. When a tool reads a file below a nested directory, applicable unclaimed nested instruction files are loaded from the file's directory upward as additional local guidance. Neither path changes the active agent selected by the registry.
+
+#### Prompt debugging
+
+Trace unexpected behavior in this order:
+
+1. Check the active agent in `src/agent/agent.ts`, including its mode, model, prompt, permissions, and step limit.
+2. Follow agent workflow injection in `src/session/prompt.ts`.
+3. Follow provider-level system prompt selection in `src/session/system.ts`.
+4. Check root and nested project guidance through `src/session/instruction.ts`.
+
+| Symptom | Likely cause | Where to inspect |
+| --- | --- | --- |
+| Agent ignores skills | Skill catalog is missing or truncated | `src/agent/prompt/{agent}.txt` toolkit section |
+| Wrong model is used | Agent or model configuration is incorrect | `src/agent/agent.ts` and the `agent` config in `openscience.json` |
+| Agent skips stages | Workflow gates are advisory or absent | `src/agent/prompt/{agent}.txt` |
+| Critique is not triggered | Parent prompt does not require critique | `src/agent/prompt/critique.txt` and the parent prompt |
+| Subagent returns empty | Context exhaustion or an inadequate step limit | Subagent configuration in `src/agent/agent.ts` |
+| Custom agent is missing | Invalid config, mode, or visibility | `openscience.json` and `src/agent/agent.ts` |
+| Wrong project instructions appear | Root precedence or nested discovery loaded another file | `src/session/instruction.ts` |
 
 ### Skills
 
