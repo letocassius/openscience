@@ -1,30 +1,31 @@
-## Debugging
+# Workspace Frontend
 
-- NEVER try to restart the app, or the server process, EVER.
+## Scope
 
-## Local Dev
+- These instructions apply only under `frontend/workspace` and inherit the root `AGENTS.md` contract.
+- This file defines frontend implementation practices only. It does not select a research workflow or change the browser's runtime agent configuration.
 
-- `openscience dev web` proxies `https://app.syntheticsciences.ai`, so local UI/CSS changes will not show there.
-- For local UI changes, run the backend and app dev servers separately.
-- Backend (from `backend/cli`): `bun run --conditions=browser ./src/index.ts serve --port 4096`
-- App (from `frontend/workspace`): `bun dev -- --port 4444`
-- Open `http://localhost:4444` to verify UI changes (it targets the backend at `http://localhost:4096`).
+## Process Safety
+
+- Never restart or stop an app or server process owned by the user.
+- Reuse an existing development environment when available; otherwise start only the process needed for verification.
+
+## Local Development
+
+- `openscience dev web` proxies `https://app.syntheticsciences.ai`, so local UI and CSS changes do not appear there.
+- For local UI changes, run the backend and frontend development servers separately.
+- Backend, from `backend/cli`: `bun run --conditions=browser ./src/index.ts serve --port 4096`.
+- Frontend, from `frontend/workspace`: `bun dev -- --port 4444`.
+- Open `http://localhost:4444`; it targets the backend at `http://localhost:4096`.
 
 ## SolidJS
 
-- Always prefer `createStore` over multiple `createSignal` calls
+- Prefer `createStore` over multiple `createSignal` calls when state belongs together.
+- Follow existing component, styling, and localization patterns in the touched feature.
 
-## Tool Calling
+## Verification
 
-- ALWAYS USE PARALLEL TOOLS WHEN APPLICABLE.
-
-## Browser Automation
-
-Use `agent-browser` for web automation. Run `agent-browser --help` for all commands.
-
-Core workflow:
-
-1. `agent-browser open <url>` - Navigate to page
-2. `agent-browser snapshot -i` - Get interactive elements with refs (@e1, @e2)
-3. `agent-browser click @e1` / `fill @e2 "text"` - Interact using refs
-4. Re-snapshot after page changes
+- Typecheck with `bun run typecheck`.
+- Build with `bun run build` when the change can affect bundling or production assets.
+- Run the smallest relevant Playwright test with `bun run test:e2e -- <test-file>`.
+- Use `agent-browser` for browser automation when appropriate: open the URL, take an interactive snapshot, act on stable element references, and re-snapshot after state changes.
