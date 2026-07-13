@@ -1,0 +1,105 @@
+:root {
+  --evidence-primary: #21965f;
+  --evidence-primary-hover: #1c8554;
+  --evidence-selected: #e7f6ee;
+  --evidence-canvas: #fafafa;
+  --evidence-panel: #ffffff;
+  --evidence-ink: #212121;
+  --evidence-slate: #666666;
+  --evidence-border: #e0e0e0;
+  --evidence-radius-control: 8px;
+  --evidence-radius-panel: 16px;
+  --evidence-shadow-panel: 0 1px 2px rgba(16, 24, 40, 0.03), 0 2px 6px rgba(16, 24, 40, 0.03);
+  --evidence-motion: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+:root.dark,
+.dark,
+html[data-color-scheme="dark"] {
+  --evidence-primary: var(--surface-brand-base);
+  --evidence-primary-hover: var(--surface-brand-hover);
+  --evidence-selected: var(--surface-base-interactive-active);
+  --evidence-canvas: var(--background-base);
+  --evidence-panel: var(--surface-raised-stronger-non-alpha);
+  --evidence-ink: var(--text-strong);
+  --evidence-slate: var(--text-weak);
+  --evidence-border: var(--border-base);
+  --evidence-shadow-panel: var(--shadow-xs);
+}
+
+.evidence-root {
+  background: var(--evidence-canvas);
+  color: var(--evidence-ink);
+  font-family: var(--font-ui-sans, ui-sans-serif, system-ui, sans-serif);
+}
+
+.evidence-header {
+  min-height: 56px;
+  padding-inline: 16px;
+  background: var(--color-surface-solid);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.evidence-panel {
+  background: var(--color-surface-solid);
+  border: 1px solid var(--color-border);
+  border-radius: var(--evidence-radius-panel);
+  box-shadow: var(--evidence-shadow-panel);
+}
+
+.evidence-control {
+  border-radius: var(--evidence-radius-control);
+  transition:
+    background var(--evidence-motion),
+    border-color var(--evidence-motion),
+    color var(--evidence-motion);
+}
+
+.evidence-primary {
+  color: #ffffff;
+  background: var(--evidence-primary);
+  border-color: var(--evidence-primary);
+  border-radius: var(--evidence-radius-control);
+  transition:
+    background var(--evidence-motion),
+    border-color var(--evidence-motion);
+}
+
+.evidence-primary:hover:not(:disabled) {
+  background: var(--evidence-primary-hover);
+  border-color: var(--evidence-primary-hover);
+}
+
+.evidence-label {
+  color: var(--evidence-slate);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+.evidence-home,
+.evidence-workbench,
+.evidence-nav,
+.evidence-main,
+.evidence-side {
+  min-width: 0;
+  min-height: 0;
+}
+
+.evidence-workbench {
+  display: flex;
+  gap: 8px;
+  padding: 16px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .evidence-root *,
+  .evidence-root *::before,
+  .evidence-root *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}

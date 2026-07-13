@@ -1,19 +1,17 @@
 import type { JSX } from "solid-js"
 
-export const FONT_SANS = "'Computer Modern', 'Latin Modern Roman', Georgia, 'Times New Roman', serif"
-export const FONT_SERIF = FONT_SANS
+export const FONT_SANS = "ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+export const FONT_SERIF = "'Computer Modern', 'Latin Modern Roman', Georgia, 'Times New Roman', serif"
 /** Code font — resolves through the theme/Settings-owned mono variable so the
  *  user's mono-font choice applies everywhere code renders. */
 export const FONT_CODE = "var(--font-family-mono, ui-monospace, monospace)"
-/** HISTORICAL TRAP: "mono" here is the one product typeface (Computer Modern,
- *  a serif) — NOT a monospace face. Use FONT_CODE for anything code-shaped. */
-export const FONT_MONO = FONT_SANS
-/** Alias kept for call sites that reference a "UI sans" token. Resolves to the
- *  one product typeface (Computer Modern) so nothing can drift to a second family. */
+/** Alias kept for compact technical wayfinding call sites. */
+export const FONT_MONO = FONT_CODE
+/** Alias kept for call sites that reference a UI sans token. */
 export const FONT_UI_SANS = FONT_SANS
 
-/** Control radius in px — keep in lockstep with --radius in atlas.css. */
-export const RADIUS = 4
+/** Evidence Desk control radius in px. */
+export const RADIUS = 8
 
 export const Z = {
   header: 20,
