@@ -8,12 +8,12 @@ import { type JSX } from "solid-js"
 export function AppHeader(props: { children: JSX.Element }): JSX.Element {
   return (
     <header
-      class="g-strip"
+      class="g-strip evidence-header"
       style={{
         display: "flex",
         "align-items": "center",
         gap: "12px",
-        padding: "10px 20px",
+        padding: "10px 16px",
         "flex-shrink": 0,
         position: "relative",
         "z-index": 10,
@@ -27,6 +27,7 @@ export function AppHeader(props: { children: JSX.Element }): JSX.Element {
 export function HeaderIconButton(props: { onClick: () => void; title: string; children: JSX.Element }): JSX.Element {
   return (
     <button
+      class="evidence-control"
       onClick={props.onClick}
       title={props.title}
       style={{
@@ -38,11 +39,9 @@ export function HeaderIconButton(props: { onClick: () => void; title: string; ch
         display: "inline-flex",
         "align-items": "center",
         "justify-content": "center",
-        "border-radius": "4px",
         border: "1px solid var(--color-border)",
         color: "var(--color-text-muted)",
         background: "var(--color-surface-solid)",
-        transition: "background 120ms ease, color 120ms ease",
       }}
       onMouseEnter={(e) => {
         e.currentTarget.style.background = "var(--color-bg-elevated)"

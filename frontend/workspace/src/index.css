@@ -1,14 +1,14 @@
 @import "@synsci/ui/styles/tailwind";
 @import "./styles/atlas.css";
+@import "./styles/evidence.css";
 
 /*
-  OpenScience editorial typography.
+  PandaScience editorial typography.
 
-  A research-workbench voice: Computer Modern (Latin Modern Roman) is the single
-  UI typeface — headings and body both resolve to it via --font-family-serif /
-  --font-family-sans; JetBrains Mono is reserved for code. Kept in @layer base
-  with bare-element selectors so any component class or inline style still wins —
-  this only sets the resting default.
+  Computer Modern (Latin Modern Roman) remains an intentional heading face;
+  body and control text use the locally supported UI sans stack, while the
+  configured mono family is reserved for code. Kept in @layer base with
+  bare-element selectors so any component class or inline style still wins.
 */
 @layer base {
   /* Computer Modern ships 400 + 700 only — declare the weights that actually

@@ -6,6 +6,7 @@ import { usePlatform } from "@/context/platform"
 import { useLanguage } from "@/context/language"
 import { Icon } from "@synsci/ui/icon"
 import { FONT_SANS } from "@/styles/tokens"
+import { PRODUCT } from "@/brand"
 
 export type InitError = {
   name: string
@@ -234,7 +235,7 @@ export const ErrorPage: Component<ErrorPageProps> = (props) => {
       style={{ "font-family": FONT_SANS }}
     >
       <div class="w-2/3 max-w-3xl flex flex-col items-center justify-center gap-8">
-        <div class="text-24-medium text-text-strong tracking-tight opacity-50 shrink-0">OpenScience</div>
+        <div class="text-24-medium text-text-strong tracking-tight opacity-50 shrink-0">{PRODUCT}</div>
         <div class="flex flex-col items-center gap-2 text-center">
           <h1 class="text-lg font-medium text-text-strong">{language.t("error.page.title")}</h1>
           <p class="text-sm text-text-weak">{language.t("error.page.description")}</p>

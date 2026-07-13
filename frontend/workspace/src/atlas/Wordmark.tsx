@@ -1,5 +1,6 @@
 import { type JSX, Show } from "solid-js"
 import { FONT_SERIF } from "@/styles/tokens"
+import { PRODUCT } from "@/brand"
 
 interface WordmarkProps {
   size?: "sm" | "md" | "lg"
@@ -15,6 +16,7 @@ export function Wordmark(props: WordmarkProps): JSX.Element {
   return (
     <button
       onClick={props.onClick}
+      aria-label={PRODUCT}
       class="atlas-wordmark"
       style={{
         all: "unset",
@@ -25,18 +27,26 @@ export function Wordmark(props: WordmarkProps): JSX.Element {
       }}
     >
       <Show when={!props.textOnly}>
-        <img
-          src="/openscience-logo.png"
-          alt=""
+        <span
+          class="panda-mark"
+          aria-hidden="true"
           style={{
-            width: `${px().logo}px`,
-            height: `${px().logo}px`,
-            "object-fit": "contain",
+            display: "inline-flex",
+            "align-items": "center",
+            "justify-content": "center",
+            width: `${px().logo + 2}px`,
+            height: `${px().logo + 2}px`,
             "flex-shrink": 0,
+            "font-family": '"Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif',
+            "font-size": `${px().logo}px`,
+            "line-height": 1,
           }}
-        />
+        >
+          🐼
+        </span>
       </Show>
       <span
+        class="panda-wordmark"
         style={{
           "font-family": FONT_SERIF,
           "font-size": `${px().text}px`,
@@ -46,7 +56,7 @@ export function Wordmark(props: WordmarkProps): JSX.Element {
           "white-space": "nowrap",
         }}
       >
-        OpenScience
+        {PRODUCT}
       </span>
     </button>
   )

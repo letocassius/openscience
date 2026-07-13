@@ -5,6 +5,7 @@ import { Icon } from "@synsci/ui/icon"
 import { IconButton } from "@synsci/ui/icon-button"
 import { useDialog } from "@synsci/ui/context/dialog"
 import { usePlatform } from "@/context/platform"
+import { PRODUCT } from "@/brand"
 import { SETTINGS_PANELS, SETTINGS_SECTIONS, DEFAULT_PANEL, findPanel, type SettingsPanelId } from "./settings/registry"
 import { SettingsNavContext } from "./settings/nav"
 
@@ -123,7 +124,7 @@ export const DialogSettings: Component = () => {
             </For>
           </div>
           <div class="flex flex-col gap-0.5 px-2.5 pt-2 text-text-weak">
-            <span class="text-12-medium">OpenScience</span>
+            <span class="text-12-medium">{PRODUCT}</span>
             <span class="text-11-regular">v{platform.version}</span>
           </div>
         </nav>
