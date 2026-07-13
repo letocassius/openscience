@@ -39,6 +39,7 @@ export function HeaderIconButton(props: { onClick: () => void; title: string; ch
         display: "inline-flex",
         "align-items": "center",
         "justify-content": "center",
+        "border-radius": "var(--radius)",
         border: "1px solid var(--color-border)",
         color: "var(--color-text-muted)",
         background: "var(--color-surface-solid)",

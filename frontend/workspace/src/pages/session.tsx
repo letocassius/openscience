@@ -439,7 +439,7 @@ export default function Page(): JSX.Element {
 
   return (
     <div
-      class="atlas-root"
+      class="atlas-root evidence-root"
       style={{
         flex: 1,
         display: "flex",
@@ -464,6 +464,7 @@ export default function Page(): JSX.Element {
       />
 
       <div
+        class="evidence-workbench"
         style={{
           flex: 1,
           "min-height": 0,
@@ -484,13 +485,14 @@ export default function Page(): JSX.Element {
         />
 
         <div
+          class="evidence-main"
           style={{
             flex: 1,
             "min-width": 0,
             "min-height": 0,
             display: "flex",
             "flex-direction": "column",
-            background: "var(--color-bg)",
+            background: "var(--color-surface-solid)",
             overflow: "hidden",
           }}
         >
@@ -878,7 +880,7 @@ function CenterTab(props: {
         gap: "7px",
         "max-width": "220px",
         padding: "6px 10px",
-        "border-radius": "4px",
+        "border-radius": "var(--radius)",
         border: props.active ? "1px solid var(--color-border-strong)" : "1px solid transparent",
         background: props.active ? "var(--color-surface-solid)" : "transparent",
         "box-shadow": props.active ? "0 1px 2px rgba(0,0,0,0.10)" : "none",
@@ -920,7 +922,7 @@ function CenterTab(props: {
             "justify-content": "center",
             width: "16px",
             height: "16px",
-            "border-radius": "4px",
+            "border-radius": "var(--radius)",
             color: "var(--color-text-faint)",
             "flex-shrink": 0,
           }}
@@ -960,7 +962,7 @@ function Header(props: {
           "align-items": "center",
           gap: "5px",
           padding: "5px 10px",
-          "border-radius": "4px",
+          "border-radius": "var(--radius)",
           "font-family": FONT_MONO,
           "font-size": "11px",
           color: "var(--color-text-muted)",
@@ -1101,12 +1103,11 @@ function SessionsSidebar(props: {
   })
   return (
     <aside
-      class="atlas-scroll"
+      class="atlas-scroll evidence-nav"
       style={{
         width: "240px",
         "min-width": "240px",
-        "border-right": "1px solid var(--color-border)",
-        background: "var(--color-bg-subtle)",
+        background: "var(--color-surface-solid)",
         display: "flex",
         "flex-direction": "column",
         "overflow-y": "auto",
@@ -1442,7 +1443,7 @@ function SessionRow(props: {
             "justify-content": "center",
             width: "22px",
             height: "22px",
-            "border-radius": "4px",
+            "border-radius": "var(--radius)",
             background: "var(--color-surface-solid)",
             border: "1px solid var(--color-border)",
             color: "var(--color-text-faint)",

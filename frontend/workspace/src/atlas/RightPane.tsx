@@ -104,13 +104,13 @@ export function RightPane(): JSX.Element {
       }
     >
       <aside
+        class="evidence-side"
         style={{
           flex: `0 0 ${width()}px`,
           width: `${width()}px`,
           display: "flex",
           "flex-direction": "column",
-          "border-left": "1px solid var(--color-border)",
-          background: "var(--color-bg-subtle)",
+          background: "var(--color-surface-solid)",
           "min-width": `${MIN_PANE_WIDTH}px`,
           position: "relative",
         }}
@@ -173,7 +173,7 @@ export function RightPane(): JSX.Element {
                   "margin-top": "2px",
                   background: "var(--color-surface-solid)",
                   border: "1px solid var(--color-border-strong)",
-                  "border-radius": "4px",
+                  "border-radius": "var(--radius)",
                   "box-shadow": "var(--shadow-md)",
                   padding: "5px",
                   "z-index": 40,
@@ -320,7 +320,7 @@ function TerminalTab(): JSX.Element {
                     all: "unset",
                     cursor: "pointer",
                     padding: "5px 8px",
-                    "border-radius": "4px",
+                    "border-radius": "var(--radius)",
                     border: "1px solid var(--color-border)",
                     background: terminal.active() === pty.id ? "var(--color-accent-subtle)" : "var(--color-bg)",
                     "font-family": FONT_MONO,
@@ -377,6 +377,7 @@ function CollapsedRail(props: {
 }): JSX.Element {
   return (
     <aside
+      class="evidence-side"
       style={{
         flex: "0 0 40px",
         width: "40px",
@@ -385,8 +386,7 @@ function CollapsedRail(props: {
         "align-items": "center",
         gap: "4px",
         padding: "10px 0",
-        "border-left": "1px solid var(--color-border)",
-        background: "var(--color-bg-subtle)",
+        background: "var(--color-surface-solid)",
       }}
     >
       <button onClick={() => props.onOpen()} title="show panel" style={railBtn()}>
@@ -431,7 +431,7 @@ function paneMenuRow(): JSX.CSSProperties {
     width: "100%",
     "box-sizing": "border-box",
     padding: "6px 8px",
-    "border-radius": "4px",
+    "border-radius": "var(--radius)",
     "font-family": FONT_MONO,
     "font-size": "11px",
     color: "var(--color-text-muted)",
@@ -443,7 +443,7 @@ function smallAction(): JSX.CSSProperties {
     all: "unset",
     cursor: "pointer",
     padding: "4px 8px",
-    "border-radius": "4px",
+    "border-radius": "var(--radius)",
     border: "1px solid var(--color-border)",
     background: "var(--color-bg-elevated)",
     "font-family": FONT_MONO,
@@ -470,7 +470,7 @@ function railBtn(): JSX.CSSProperties {
     display: "inline-flex",
     "align-items": "center",
     "justify-content": "center",
-    "border-radius": "4px",
+    "border-radius": "var(--radius)",
     color: "var(--color-text-muted)",
   } as JSX.CSSProperties
 }
@@ -495,7 +495,7 @@ function TabBtn(props: {
         "align-items": "center",
         gap: "7px",
         padding: "6px 10px",
-        "border-radius": "4px",
+        "border-radius": "var(--radius)",
         border: props.active ? "1px solid var(--color-border-strong)" : "1px solid transparent",
         background: props.active ? "var(--color-surface-solid)" : "transparent",
         "box-shadow": props.active ? "0 1px 2px rgba(0,0,0,0.10)" : "none",
@@ -530,7 +530,7 @@ function TabBtn(props: {
             "min-width": "15px",
             height: "15px",
             padding: "0 4px",
-            "border-radius": "4px",
+            "border-radius": "var(--radius)",
             background: "var(--color-accent)",
             color: "var(--color-on-accent)",
             "font-family": FONT_MONO,

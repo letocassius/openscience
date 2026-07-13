@@ -3,9 +3,7 @@ import { Icon } from "@synsci/ui/icon"
 import type { IconProps } from "@synsci/ui/icon"
 import { DropdownMenu } from "@synsci/ui/dropdown-menu"
 
-// Shared visual language for the OpenScience settings panels. Matches the
-// reference (rounded cards, muted subheaders, filter/search/add toolbar) while
-// inheriting the app's Computer Modern font — no token/font edits. Panels stay
+// Shared visual language for the PandaScience settings panels. Panels stay
 // one-file-each; this module is pure presentational infra they compose.
 
 export const PanelScroll: ParentComponent = (props) => (
@@ -17,7 +15,7 @@ export const PanelHeader: Component<{ title: string; description: string; toolba
     <div class="flex flex-col gap-4 px-4 pt-8 pb-4 sm:px-8 max-w-[820px]">
       <div class="flex flex-col gap-1">
         <h2 class="text-16-medium text-text-strong">{props.title}</h2>
-        <p class="text-13-regular text-text-weak">{props.description}</p>
+        <p class="text-14-regular text-text-weak">{props.description}</p>
       </div>
       <Show when={props.toolbar}>{props.toolbar}</Show>
     </div>
@@ -33,7 +31,7 @@ export const SectionLabel: Component<{ label: string; count?: number }> = (props
   <div class="flex items-center gap-2 px-0.5">
     <span class="atlas-section-label">{props.label}</span>
     <Show when={props.count !== undefined}>
-      <span class="text-10-regular text-text-weaker">{props.count}</span>
+      <span class="text-12-regular text-text-weaker">{props.count}</span>
     </Show>
   </div>
 )
@@ -41,13 +39,15 @@ export const SectionLabel: Component<{ label: string; count?: number }> = (props
 // Rounded card wrapping a stack of rows (dividers between children handled by
 // Row's border-b). Use for grouped lists.
 export const Card: ParentComponent = (props) => (
-  <div class="border border-border-weak-base rounded-[4px] overflow-hidden bg-surface-base/40">{props.children}</div>
+  <div class="border border-border-base rounded-[8px] overflow-hidden bg-surface-raised-stronger-non-alpha">
+    {props.children}
+  </div>
 )
 
 export const Row: ParentComponent<{ onClick?: () => void }> = (props) => (
   <div
-    class="flex flex-wrap items-center gap-3 px-4 py-3.5 border-b border-border-weak-base last:border-none"
-    classList={{ "cursor-pointer hover:bg-surface-raised-base/40": !!props.onClick }}
+    class="flex flex-wrap items-center gap-3 px-4 py-3.5 border-b border-border-base last:border-none text-14-regular"
+    classList={{ "cursor-pointer hover:bg-surface-base-interactive-active": !!props.onClick }}
     onClick={props.onClick}
   >
     {props.children}
@@ -56,7 +56,7 @@ export const Row: ParentComponent<{ onClick?: () => void }> = (props) => (
 
 export const EmptyState: Component<{ icon: IconProps["name"]; title: string; hint?: string }> = (props) => (
   <div class="flex flex-col items-center gap-3 text-center py-14">
-    <div class="flex items-center justify-center size-11 rounded-[4px] border border-border-weak-base bg-surface-base/40 text-icon-weak-base">
+    <div class="flex items-center justify-center size-11 rounded-[8px] border border-border-base bg-surface-raised-stronger-non-alpha text-icon-weak-base">
       <Icon name={props.icon} size="normal" />
     </div>
     <span class="text-14-medium text-text-strong">{props.title}</span>
@@ -69,7 +69,7 @@ export const EmptyState: Component<{ icon: IconProps["name"]; title: string; hin
 // ── Toolbar pieces ──────────────────────────────────────────────────────────
 
 const controlBase =
-  "flex items-center gap-2 h-9 px-3 rounded-xs border border-border-weak-base bg-surface-base text-13-medium transition-colors"
+  "flex items-center gap-2 h-9 px-3 rounded-[8px] border border-border-base bg-surface-raised-stronger-non-alpha text-14-medium transition-colors"
 
 export const SearchInput: Component<{ value: string; onInput: (v: string) => void; placeholder?: string }> = (
   props,
@@ -107,7 +107,7 @@ export const FilterMenu: Component<{ options: FilterOption[]; value: string; onS
   return (
     <DropdownMenu>
       <DropdownMenu.Trigger
-        class={`${controlBase} text-text-strong hover:bg-surface-raised-base/60 data-[expanded]:bg-surface-raised-base-active flex-shrink-0`}
+        class={`${controlBase} text-text-strong hover:bg-surface-base-interactive-active data-[expanded]:bg-surface-base-interactive-active flex-shrink-0`}
       >
         <span class="truncate max-w-[160px]">
           {active()?.label}
@@ -143,7 +143,7 @@ export interface AddItem {
 export const AddMenu: Component<{ label: string; items: AddItem[] }> = (props) => (
   <DropdownMenu>
     <DropdownMenu.Trigger
-      class={`${controlBase} text-text-strong bg-surface-raised-base-active hover:bg-surface-raised-base-active/80 data-[expanded]:bg-surface-raised-base-active flex-shrink-0`}
+      class={`${controlBase} text-text-strong bg-surface-base-interactive-active hover:bg-surface-interactive-weak-hover data-[expanded]:bg-surface-base-interactive-active flex-shrink-0`}
     >
       <Icon name="plus" size="small" />
       <span class="truncate">{props.label}</span>
@@ -184,7 +184,7 @@ export const FormField: Component<{
   mono?: boolean
 }> = (props) => (
   <label class="flex flex-col gap-1.5">
-    <span class="text-12-medium text-text-strong">{props.label}</span>
+    <span class="text-14-medium text-text-strong">{props.label}</span>
     <Show
       when={props.multiline}
       fallback={
@@ -193,7 +193,7 @@ export const FormField: Component<{
           value={props.value}
           disabled={props.disabled}
           placeholder={props.placeholder}
-          class="h-9 px-3 rounded-xs border border-border-weak-base bg-surface-base text-13-regular text-text-strong outline-none focus:border-border-strong-base placeholder:text-text-weak/60"
+          class="h-9 px-3 rounded-[8px] border border-transparent bg-background-weak text-14-regular text-text-strong outline-none focus:border-border-strong-base placeholder:text-text-weak/60"
           onInput={(e) => props.onInput(e.currentTarget.value)}
         />
       }
@@ -203,7 +203,7 @@ export const FormField: Component<{
         disabled={props.disabled}
         placeholder={props.placeholder}
         rows={5}
-        class="px-3 py-2 rounded-xs border border-border-weak-base bg-surface-base text-13-regular text-text-strong outline-none focus:border-border-strong-base resize-y min-h-[96px] placeholder:text-text-weak/60"
+        class="px-3 py-2 rounded-[8px] border border-transparent bg-background-weak text-14-regular text-text-strong outline-none focus:border-border-strong-base resize-y min-h-[96px] placeholder:text-text-weak/60"
         classList={{ "font-mono": props.mono }}
         onInput={(e) => props.onInput(e.currentTarget.value)}
       />
@@ -221,11 +221,11 @@ export const FormButton: Component<{
     type="button"
     disabled={props.disabled}
     onClick={props.onClick}
-    class="h-9 px-4 rounded-xs text-13-medium transition-colors disabled:opacity-50"
+    class="h-9 px-4 rounded-[8px] text-14-medium transition-colors disabled:opacity-50"
     classList={{
-      "bg-surface-raised-base-active text-text-strong hover:bg-surface-raised-base-active/80":
+      "bg-surface-base-interactive-active text-text-strong hover:bg-surface-interactive-weak-hover":
         (props.variant ?? "primary") === "primary",
-      "border border-border-weak-base text-text-weak hover:text-text-strong hover:bg-surface-raised-base/60":
+      "border border-border-base text-text-weak hover:text-text-strong hover:bg-surface-base-interactive-active":
         props.variant === "ghost",
       "text-text-on-critical-base hover:bg-surface-critical-weak": props.variant === "danger",
     }}

@@ -1,10 +1,10 @@
-// General — Account, Model defaults, and Licensing, plus the appearance/theme
-// controls. Everything here is wired to a real endpoint:
+// General — Account, Model defaults, Licensing, and application preferences.
+// Everything here is wired to a real endpoint:
 //   • Account   → client.account.get / client.account.logout, billing link.
 //   • Model      → global config `model` / `small_model` (client.global.config.update
 //                  via useGlobalSync().updateConfig) + the reasoning effort store.
 //   • Licensing  → /settings/preferences (real JSON store, persisted to ~/.openscience).
-//   • Appearance → the extracted AppearanceSections (theme, sounds, updates, …).
+//   • Preferences → language, layout, notifications, sounds, and updates.
 import { Component, Show, createMemo, createSignal, onMount, type JSX } from "solid-js"
 import { Button } from "@synsci/ui/button"
 import { Select } from "@synsci/ui/select"
@@ -18,6 +18,7 @@ import { URLS } from "@/config/urls"
 import { FONT_CODE, FONT_SANS } from "@/styles/tokens"
 import { AppearanceSections } from "../settings-general"
 import { settingsApi } from "./api"
+import { Card } from "./_shared"
 
 type Account = {
   session?: boolean
@@ -120,7 +121,7 @@ export default function General() {
       <div class="sticky top-0 z-10 bg-[linear-gradient(to_bottom,var(--surface-raised-stronger-non-alpha)_calc(100%_-_24px),transparent)]">
         <div class="flex flex-col gap-1 pt-8 pb-8 max-w-[760px]">
           <h2 class="text-16-medium text-text-strong">General</h2>
-          <p class="text-13-regular text-text-weak">Your account, default models, licensing, and appearance.</p>
+          <p class="text-14-regular text-text-weak">Your account, default models, licensing, and preferences.</p>
         </div>
       </div>
 
@@ -132,7 +133,7 @@ export default function General() {
               "font-size": "12px",
               color: "var(--color-error)",
               border: "1px solid var(--color-error-muted)",
-              "border-radius": "4px",
+              "border-radius": "var(--radius-sm)",
               padding: "10px 12px",
             }}
           >
@@ -142,18 +143,18 @@ export default function General() {
 
         {/* Account */}
         <Section title="Account" description="Your OpenScience identity and subscription.">
-          <div class="border border-border-weak-base rounded-[4px] overflow-hidden bg-surface-base/40">
+          <Card>
             <Row title="Email">
-              <span class="text-13-regular text-text-strong">
+              <span class="text-14-regular text-text-strong">
                 {(account()?.user?.email as string) ?? (account()?.session === false ? "Not connected" : "—")}
               </span>
             </Row>
             <Row title="Plan">
-              <span class="text-13-regular text-text-strong capitalize">{plan() ?? "Free"}</span>
+              <span class="text-14-regular text-text-strong capitalize">{plan() ?? "Free"}</span>
             </Row>
             <Show when={org()}>
               <Row title="Organization">
-                <span class="text-13-regular text-text-strong">{org()}</span>
+                <span class="text-14-regular text-text-strong">{org()}</span>
               </Row>
             </Show>
             <Row title="Billing" description="Manage your subscription, wallet, and invoices.">
@@ -180,12 +181,12 @@ export default function General() {
                 </p>
               </div>
             </Show>
-          </div>
+          </Card>
         </Section>
 
         {/* Model */}
         <Section title="Model" description="Defaults applied to new sessions and background tasks.">
-          <div class="border border-border-weak-base rounded-[4px] overflow-hidden bg-surface-base/40">
+          <Card>
             <Row title="Default model" description="Primary model used when a session starts.">
               <Select
                 options={modelOptions()}
@@ -224,7 +225,7 @@ export default function General() {
                 triggerVariant="settings"
               />
             </Row>
-          </div>
+          </Card>
         </Section>
 
         {/* Licensing */}
@@ -245,7 +246,7 @@ export default function General() {
           </div>
         </Section>
 
-        {/* Appearance / theme / notifications / sounds / updates */}
+        {/* Language / layout / notifications / sounds / updates */}
         <AppearanceSections />
       </div>
     </div>
@@ -259,7 +260,7 @@ function message(err: unknown) {
 const Section: Component<{ title: string; description?: string; children: JSX.Element }> = (props) => (
   <div class="flex flex-col gap-3">
     <div class="flex flex-col gap-0.5">
-      <h3 class="text-13-medium text-text-weak tracking-wide">{props.title}</h3>
+      <h3 class="text-14-medium text-text-weak tracking-wide">{props.title}</h3>
       <Show when={props.description}>
         <p class="text-12-regular text-text-weak">{props.description}</p>
       </Show>
@@ -269,7 +270,7 @@ const Section: Component<{ title: string; description?: string; children: JSX.El
 )
 
 const Row: Component<{ title: string; description?: string; children: JSX.Element }> = (props) => (
-  <div class="flex flex-wrap items-center justify-between gap-4 px-4 py-3.5 border-b border-border-weak-base last:border-none">
+  <div class="flex flex-wrap items-center justify-between gap-4 px-4 py-3.5 border-b border-border-base last:border-none">
     <div class="flex flex-col gap-0.5 min-w-0">
       <span class="text-14-medium text-text-strong">{props.title}</span>
       <Show when={props.description}>
@@ -291,11 +292,12 @@ const IntentCard: Component<{ active: boolean; title: string; body: string; onCl
       "flex-direction": "column",
       gap: "5px",
       padding: "14px 16px",
-      "border-radius": "4px",
+      "border-radius": "var(--radius-sm)",
       border: "1px solid var(--color-border)",
       "box-shadow": props.active ? "inset 0 0 0 1px var(--color-text-interactive-base, var(--color-text))" : "none",
-      background: props.active ? "var(--color-surface-interactive-weak, var(--color-accent-subtle))" : "transparent",
-      transition: "border-color 120ms, box-shadow 120ms, background 120ms",
+      background: props.active ? "var(--surface-base-interactive-active)" : "var(--surface-raised-stronger-non-alpha)",
+      transition:
+        "border-color var(--duration-fast) var(--ease-standard), box-shadow var(--duration-fast) var(--ease-standard), background var(--duration-fast) var(--ease-standard)",
     }}
   >
     <div style={{ display: "flex", "align-items": "center", "justify-content": "space-between" }}>

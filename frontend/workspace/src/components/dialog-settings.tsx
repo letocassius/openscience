@@ -36,14 +36,19 @@ const SETTINGS_STYLES = `
   transform: translateX(16px);
 }
 .settings-dialog [data-slot="select-select-trigger"] {
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
 }
 [data-component="select-content"][data-trigger-style="settings"] {
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   padding: 4px;
 }
 [data-component="select-content"][data-trigger-style="settings"] [data-slot="select-select-item"] {
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
+}
+.settings-dialog .rounded-\\[4px\\] {
+  border-radius: var(--radius-sm);
+  border-color: var(--color-border);
+  background-color: var(--surface-raised-stronger-non-alpha);
 }
 
 /* ── Fixed modal frame ──────────────────────────────────────────────────────
@@ -95,7 +100,10 @@ export const DialogSettings: Component = () => {
       <style>{SETTINGS_STYLES}</style>
       <div class="flex h-full w-full">
         {/* ── Left rail ── */}
-        <nav class="flex flex-col justify-between w-[224px] flex-shrink-0 border-r border-border-weak-base bg-surface-base/30 py-3 px-2.5">
+        <nav
+          class="flex flex-col justify-between w-[224px] flex-shrink-0 border-r border-border-base py-3 px-2.5"
+          style={{ background: "var(--color-bg-subtle)", "border-right-color": "var(--color-border)" }}
+        >
           <div class="flex flex-col gap-5 overflow-y-auto no-scrollbar pt-1">
             <For each={SETTINGS_SECTIONS}>
               {(section) => (
@@ -105,10 +113,10 @@ export const DialogSettings: Component = () => {
                     {(panel) => (
                       <button
                         type="button"
-                        class="flex items-center gap-2.5 h-8 px-2.5 rounded-xs text-13-medium transition-colors text-left"
+                        class="flex items-center gap-2.5 h-8 px-2.5 rounded-[8px] text-14-medium transition-colors text-left"
                         classList={{
-                          "bg-surface-raised-base-active text-text-strong": current().id === panel.id,
-                          "text-text-weak hover:text-text-strong hover:bg-surface-raised-base/60":
+                          "bg-surface-base-interactive-active text-text-strong": current().id === panel.id,
+                          "text-text-weak hover:text-text-strong hover:bg-surface-raised-base-hover":
                             current().id !== panel.id,
                         }}
                         onClick={() => navigate(panel.id)}
@@ -125,7 +133,7 @@ export const DialogSettings: Component = () => {
           </div>
           <div class="flex flex-col gap-0.5 px-2.5 pt-2 text-text-weak">
             <span class="text-12-medium">{PRODUCT}</span>
-            <span class="text-11-regular">v{platform.version}</span>
+            <span class="text-12-regular">v{platform.version}</span>
           </div>
         </nav>
 

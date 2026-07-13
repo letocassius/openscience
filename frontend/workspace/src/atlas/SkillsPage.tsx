@@ -157,7 +157,7 @@ export default function SkillsPage(): JSX.Element {
               "justify-content": "center",
               width: "38px",
               height: "38px",
-              "border-radius": "9px",
+              "border-radius": "var(--radius)",
               border: "1px solid var(--color-border)",
               background: "var(--color-surface-solid)",
               color: "var(--color-text)",
@@ -385,7 +385,7 @@ function SkillCard(props: { skill: Skill; on: boolean; onToggle: (v: boolean) =>
         "flex-direction": "column",
         gap: "8px",
         padding: "13px 14px",
-        "border-radius": "8px",
+        "border-radius": "var(--radius)",
         border: "1px solid var(--color-border)",
         background: props.on ? "var(--color-surface-solid)" : "transparent",
         opacity: props.on ? 1 : 0.62,
@@ -464,7 +464,7 @@ function SkillCard(props: { skill: Skill; on: boolean; onToggle: (v: boolean) =>
                 "font-size": "10px",
                 color: "var(--color-text-faint)",
                 padding: "1px 6px",
-                "border-radius": "4px",
+                "border-radius": "var(--radius)",
                 background: "var(--color-accent-subtle)",
               }}
             >

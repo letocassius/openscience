@@ -89,6 +89,16 @@
   display: flex;
   gap: 8px;
   padding: 16px;
+  background: var(--evidence-canvas);
+}
+
+.evidence-nav,
+.evidence-main,
+.evidence-side {
+  overflow: hidden;
+  background: var(--evidence-panel);
+  border-radius: var(--evidence-radius-panel);
+  box-shadow: var(--evidence-shadow-panel);
 }
 
 @media (prefers-reduced-motion: reduce) {

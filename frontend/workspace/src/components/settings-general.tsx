@@ -108,7 +108,7 @@ export const AppearanceSections: Component = () => {
     <div class="flex flex-col gap-8 w-full max-w-[760px]">
       {/* Appearance Section */}
       <div class="flex flex-col gap-3">
-        <h3 class="text-13-medium text-text-weak tracking-wide">{language.t("settings.general.section.appearance")}</h3>
+        <h3 class="text-13-medium text-text-weak tracking-wide">{language.t("settings.general.row.language.title")}</h3>
 
         <div class="border border-border-weak-base rounded-[4px] overflow-hidden bg-surface-base/40">
           <SettingsRow
@@ -126,7 +126,6 @@ export const AppearanceSections: Component = () => {
               triggerVariant="settings"
             />
           </SettingsRow>
-
         </div>
       </div>
 
