@@ -27,64 +27,22 @@ export function Wordmark(props: WordmarkProps): JSX.Element {
       }}
     >
       <Show when={!props.textOnly}>
-        <style>{`
-          .panda-mark {
-            position: relative;
-            display: inline-block;
-            color: var(--color-text);
-          }
-          .panda-mark__ear {
-            position: absolute;
-            top: 2%;
-            width: 35%;
-            height: 35%;
-            border-radius: 50%;
-            background: currentColor;
-          }
-          .panda-mark__ear--left {
-            left: 3%;
-          }
-          .panda-mark__ear--right {
-            right: 3%;
-          }
-          .panda-mark__face {
-            position: absolute;
-            inset: 13% 4% 2%;
-            border: 2px solid currentColor;
-            border-radius: 50%;
-            background: var(--background-base);
-          }
-          .panda-mark__face::before,
-          .panda-mark__face::after {
-            position: absolute;
-            top: 36%;
-            width: 18%;
-            height: 27%;
-            border-radius: 50%;
-            background: currentColor;
-            content: "";
-          }
-          .panda-mark__face::before {
-            left: 22%;
-            transform: rotate(20deg);
-          }
-          .panda-mark__face::after {
-            right: 22%;
-            transform: rotate(-20deg);
-          }
-        `}</style>
         <span
           class="panda-mark"
           aria-hidden="true"
           style={{
-            width: `${px().logo}px`,
-            height: `${px().logo}px`,
+            display: "inline-flex",
+            "align-items": "center",
+            "justify-content": "center",
+            width: `${px().logo + 2}px`,
+            height: `${px().logo + 2}px`,
             "flex-shrink": 0,
+            "font-family": '"Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif',
+            "font-size": `${px().logo}px`,
+            "line-height": 1,
           }}
         >
-          <span class="panda-mark__ear panda-mark__ear--left" />
-          <span class="panda-mark__ear panda-mark__ear--right" />
-          <span class="panda-mark__face" />
+          🐼
         </span>
       </Show>
       <span

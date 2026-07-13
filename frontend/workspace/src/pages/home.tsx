@@ -273,6 +273,7 @@ export default function Home(): JSX.Element {
           padding: 14px 16px;
           background: var(--evidence-panel);
           border: 1px solid var(--evidence-border);
+          border-top: 3px solid var(--evidence-primary);
           border-radius: var(--evidence-radius-panel);
           box-shadow: var(--evidence-shadow-panel);
         }
@@ -295,9 +296,19 @@ export default function Home(): JSX.Element {
           margin-bottom: 12px;
         }
         .evidence-home__toolbar-title {
+          display: inline-flex;
+          align-items: center;
+          gap: 7px;
           color: var(--evidence-slate);
           font-size: 12px;
           font-weight: 600;
+        }
+        .evidence-home__toolbar-title::before {
+          width: 6px;
+          height: 6px;
+          border-radius: 999px;
+          background: var(--evidence-primary);
+          content: "";
         }
         .evidence-home__grid {
           display: grid;
@@ -313,13 +324,23 @@ export default function Home(): JSX.Element {
         .evidence-home__row {
           transition: background var(--evidence-motion), border-color var(--evidence-motion);
         }
+        .evidence-home__card {
+          border-top: 2px solid var(--evidence-accent-line);
+          box-shadow: none;
+        }
         .evidence-home__card:focus-visible,
         .evidence-home__row:focus-visible {
           outline: 2px solid var(--evidence-primary);
           outline-offset: 2px;
         }
         .evidence-home__empty {
+          border-top-color: var(--evidence-primary) !important;
           border-radius: var(--evidence-radius-panel) !important;
+        }
+        .evidence-home__grid > .evidence-home__empty {
+          border-color: var(--evidence-accent-line) !important;
+          color: var(--evidence-primary) !important;
+          background: var(--evidence-accent-soft) !important;
         }
         @media (max-width: 760px) {
           .evidence-home .evidence-header {
@@ -637,7 +658,6 @@ function ProjectCard(props: {
         gap: "14px",
         padding: "20px",
         background: hover() || props.isFavorite ? "var(--evidence-selected)" : "var(--evidence-panel)",
-        "border-color": hover() ? "var(--evidence-primary)" : "var(--evidence-border)",
         position: "relative",
         overflow: "hidden",
       }}

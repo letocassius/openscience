@@ -8,6 +8,7 @@ test("renders the PandaScience product identity", async ({ page }) => {
 
   await expect(page).toHaveTitle("PandaScience")
   await expect(page.getByRole("button", { name: "PandaScience" }).first()).toBeVisible()
+  await expect(page.locator(".panda-mark")).toHaveText("🐼")
   await expect(page.getByText("Insilico Medicine", { exact: true })).toBeVisible()
 
   const canvas = await page.evaluate(() =>
@@ -16,6 +17,32 @@ test("renders the PandaScience product identity", async ({ page }) => {
   expect(canvas).toBe("#fafafa")
   const header = page.locator(".evidence-header")
   await expect(header).toHaveCSS("min-height", "56px")
+})
+
+test("uses green structural accents on the project registry", async ({ page }) => {
+  await page.addInitScript((key: string) => localStorage.setItem(key, "1"), SETUP_DISMISS_KEY)
+  await page.goto("/")
+  await page.getByTitle("grid view").click()
+  await expect(page.locator(".evidence-home__card").first()).toBeVisible()
+
+  const colors = await page.evaluate(() => {
+    const primary = document.querySelector<HTMLElement>(".evidence-home__primary")
+    const label = document.querySelector<HTMLElement>(".evidence-label")
+    const panel = document.querySelector<HTMLElement>(".evidence-home__count, .evidence-home__empty")
+    const card = document.querySelector<HTMLElement>(".evidence-home__card")
+    if (!primary || !label || !panel || !card) return undefined
+    return {
+      primary: getComputedStyle(primary).backgroundColor,
+      label: getComputedStyle(label).color,
+      panel: getComputedStyle(panel).borderTopColor,
+      shadow: getComputedStyle(card).boxShadow,
+    }
+  })
+
+  expect(colors).toBeDefined()
+  expect(colors?.label).toBe(colors?.primary)
+  expect(colors?.panel).toBe(colors?.primary)
+  expect(colors?.shadow).toBe("none")
 })
 
 test("uses the runtime on-brand foreground in dark mode", async ({ page }) => {
