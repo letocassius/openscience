@@ -1,6 +1,6 @@
 import { type JSX, Show, For, onMount, onCleanup } from "solid-js"
 import { Portal } from "solid-js/web"
-import { FONT_MONO, FONT_SANS, FONT_SERIF } from "@/styles/tokens"
+import { FONT_MONO, FONT_SANS } from "@/styles/tokens"
 import { IconX } from "@/atlas/shared/Icon"
 import { AgentIcon } from "@/atlas/shared/AgentIcon"
 
@@ -59,7 +59,7 @@ export function HelpOverlay(props: HelpOverlayProps): JSX.Element {
             <AgentIcon size={20} strokeWidth={1.5} animated={true} />
             <span
               style={{
-                "font-family": FONT_SERIF,
+                "font-family": FONT_SANS,
                 "font-size": "22px",
                 "letter-spacing": "-0.01em",
                 color: "var(--color-text)",
@@ -126,7 +126,7 @@ export function HelpOverlay(props: HelpOverlayProps): JSX.Element {
                                   padding: "2px 6px",
                                   border: "1px solid var(--color-border)",
                                   "border-bottom-width": "2px",
-                                  "border-radius": "4px",
+                                  "border-radius": "var(--evidence-radius-control)",
                                   background: "var(--color-bg-subtle)",
                                   color: "var(--color-text-muted)",
                                 }}
@@ -139,7 +139,7 @@ export function HelpOverlay(props: HelpOverlayProps): JSX.Element {
                         <span
                           style={{
                             "font-family": FONT_SANS,
-                            "font-size": "13px",
+                            "font-size": "14px",
                             color: "var(--color-text-muted)",
                             flex: 1,
                           }}

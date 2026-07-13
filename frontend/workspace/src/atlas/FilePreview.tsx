@@ -274,7 +274,7 @@ export function FileView(props: {
           style={{
             "flex-shrink": 0,
             padding: "2px 8px",
-            "border-radius": "4px",
+            "border-radius": "var(--evidence-radius-control)",
             border: "1px solid var(--color-border)",
             background: "var(--color-bg-subtle)",
             "font-family": FONT_MONO,
@@ -362,7 +362,7 @@ export function FileView(props: {
               <div
                 style={{
                   "font-family": FONT_SANS,
-                  "font-size": "13px",
+                  "font-size": "14px",
                   "font-weight": 500,
                   color: "var(--color-text)",
                 }}
@@ -420,7 +420,7 @@ export function FileView(props: {
                       "max-width": "100%",
                       "max-height": "100%",
                       "object-fit": "contain",
-                      "border-radius": "4px",
+                      "border-radius": "var(--evidence-radius-control)",
                     }}
                   />
                 </div>
@@ -440,7 +440,7 @@ export function FileView(props: {
                   <div
                     style={{
                       "font-family": FONT_SANS,
-                      "font-size": "13px",
+                      "font-size": "14px",
                       color: "var(--color-text-muted)",
                       "line-height": 1.6,
                     }}
@@ -515,11 +515,11 @@ export function FilePreview(props: { path: string; onClose: () => void }): JSX.E
         style={{
           position: "fixed",
           inset: 0,
-          background: "rgba(0,0,0,0.42)",
+          background: "rgba(33,33,33,0.52)",
           "backdrop-filter": "blur(2px)",
           "z-index": 90,
           opacity: mounted() ? 1 : 0,
-          transition: "opacity 120ms ease",
+          transition: "opacity var(--duration-fast) var(--ease-standard)",
         }}
       />
       <div
@@ -536,13 +536,14 @@ export function FilePreview(props: { path: string; onClose: () => void }): JSX.E
           "flex-direction": "column",
           background: "var(--color-surface-solid)",
           border: "1px solid var(--color-border-strong)",
-          "border-radius": "4px",
-          "box-shadow": "var(--shadow-lg, 0 24px 60px rgba(0,0,0,0.35))",
+          "border-radius": "var(--evidence-radius-panel)",
+          "box-shadow": "0 4px 24px rgba(0,0,0,0.08)",
           overflow: "hidden",
           "z-index": 91,
           transform: mounted() ? "translateX(0)" : "translateX(16px)",
           opacity: mounted() ? 1 : 0,
-          transition: "transform 200ms cubic-bezier(0.16, 1, 0.3, 1), opacity 200ms ease",
+          transition:
+            "transform 200ms cubic-bezier(0.16, 1, 0.3, 1), opacity var(--duration-slow) var(--ease-standard)",
         }}
       >
         <FileView path={props.path} onClose={props.onClose} />
@@ -574,11 +575,11 @@ function iconBtn(active = false): JSX.CSSProperties {
     "justify-content": "center",
     width: "28px",
     height: "28px",
-    "border-radius": "4px",
+    "border-radius": "var(--evidence-radius-control)",
     color: active ? "var(--color-text)" : "var(--color-text-faint)",
     background: active ? "var(--color-accent-subtle)" : "transparent",
     "flex-shrink": 0,
-    transition: "background 120ms ease, color 120ms ease",
+    transition: "background var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard)",
   } as JSX.CSSProperties
 }
 
@@ -588,7 +589,7 @@ function retryBtn(): JSX.CSSProperties {
     cursor: "pointer",
     "margin-top": "2px",
     padding: "5px 12px",
-    "border-radius": "4px",
+    "border-radius": "var(--evidence-radius-control)",
     border: "1px solid var(--color-border)",
     "font-family": FONT_MONO,
     "font-size": "11px",
@@ -603,12 +604,12 @@ function ctlBtn(primary = false): JSX.CSSProperties {
     display: "inline-flex",
     "align-items": "center",
     padding: "5px 11px",
-    "border-radius": "4px",
+    "border-radius": "var(--evidence-radius-control)",
     border: primary ? "1px solid var(--color-text)" : "1px solid var(--color-border)",
-    background: primary ? "var(--color-text)" : "var(--color-bg-subtle)",
-    color: primary ? "var(--color-bg)" : "var(--color-text-muted)",
-    "font-family": FONT_MONO,
-    "font-size": "11px",
+    background: primary ? "var(--evidence-primary)" : "var(--color-surface-solid)",
+    color: primary ? "var(--evidence-on-primary)" : "var(--color-text-muted)",
+    "font-family": FONT_SANS,
+    "font-size": "14px",
     "font-weight": primary ? 600 : 500,
     "flex-shrink": 0,
   } as JSX.CSSProperties

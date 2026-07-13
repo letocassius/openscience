@@ -196,8 +196,8 @@ export function CommandPalette(props: CommandPaletteProps): JSX.Element {
               style={{
                 all: "unset",
                 flex: 1,
-                "font-family": FONT_MONO,
-                "font-size": "13px",
+                "font-family": FONT_SANS,
+                "font-size": "14px",
                 color: "var(--color-text)",
               }}
             />
@@ -222,8 +222,8 @@ export function CommandPalette(props: CommandPaletteProps): JSX.Element {
                   style={{
                     padding: "32px",
                     "text-align": "center",
-                    "font-family": FONT_MONO,
-                    "font-size": "11px",
+                    "font-family": FONT_SANS,
+                    "font-size": "14px",
                     color: "var(--color-text-faint)",
                   }}
                 >
@@ -237,8 +237,8 @@ export function CommandPalette(props: CommandPaletteProps): JSX.Element {
                     <div
                       style={{
                         padding: "6px 16px",
-                        "font-family": FONT_MONO,
-                        "font-size": "10px",
+                        "font-family": FONT_SANS,
+                        "font-size": "12px",
                         "letter-spacing": "0.08em",
                         "text-transform": "uppercase",
                         color: "var(--color-text-faint)",
@@ -268,7 +268,7 @@ export function CommandPalette(props: CommandPaletteProps): JSX.Element {
                               "box-sizing": "border-box",
                               padding: "8px 16px",
                               background: highlighted() === idx() ? "var(--color-accent-subtle)" : "transparent",
-                              transition: "background 120ms ease",
+                              transition: "background var(--duration-fast) var(--ease-standard)",
                             }}
                           >
                             <Show when={cmd.icon}>
@@ -283,8 +283,8 @@ export function CommandPalette(props: CommandPaletteProps): JSX.Element {
                             </Show>
                             <span
                               style={{
-                                "font-family": FONT_MONO,
-                                "font-size": "12px",
+                                "font-family": FONT_SANS,
+                                "font-size": "14px",
                                 color: "var(--color-text)",
                                 overflow: "hidden",
                                 "text-overflow": "ellipsis",
@@ -327,7 +327,7 @@ export function CommandPalette(props: CommandPaletteProps): JSX.Element {
               padding: "8px 16px",
               "border-top": "1px solid var(--color-border)",
               background: "var(--color-bg-subtle)",
-              "font-family": FONT_MONO,
+              "font-family": FONT_SANS,
               "font-size": "10px",
               color: "var(--color-text-faint)",
             }}
@@ -353,7 +353,7 @@ function Hint(props: { k: string; l: string }): JSX.Element {
           "font-size": "10px",
           padding: "0 4px",
           border: "1px solid var(--color-border)",
-          "border-radius": "4px",
+          "border-radius": "var(--evidence-radius-control)",
           color: "var(--color-text-muted)",
         }}
       >

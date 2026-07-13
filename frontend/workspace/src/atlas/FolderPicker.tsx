@@ -253,7 +253,7 @@ export function FolderPicker(props: PickerProps): JSX.Element {
               padding: "6px 8px",
               background: "var(--color-bg-subtle)",
               border: "1px solid var(--color-border)",
-              "border-radius": "4px",
+              "border-radius": "var(--evidence-radius-control)",
               "flex-wrap": "wrap",
             }}
           >
@@ -285,8 +285,9 @@ export function FolderPicker(props: PickerProps): JSX.Element {
                       color: i() === crumbs().length - 1 ? "var(--color-text)" : "var(--color-text-muted)",
                       "font-weight": i() === crumbs().length - 1 ? 600 : 500,
                       padding: "2px 4px",
-                      "border-radius": "4px",
-                      transition: "background 120ms ease, color 120ms ease",
+                      "border-radius": "var(--evidence-radius-control)",
+                      transition:
+                        "background var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard)",
                     }}
                     onMouseEnter={(el) => {
                       el.currentTarget.style.background = "var(--color-accent-subtle)"
@@ -317,7 +318,7 @@ export function FolderPicker(props: PickerProps): JSX.Element {
               gap: "6px",
               padding: "6px 10px",
               border: "1px solid var(--color-border)",
-              "border-radius": "4px",
+              "border-radius": "var(--evidence-radius-control)",
               background: "var(--color-surface-solid)",
             }}
           >
@@ -359,7 +360,7 @@ export function FolderPicker(props: PickerProps): JSX.Element {
               gap: "6px",
               padding: "6px 10px",
               border: "1px dashed var(--color-border)",
-              "border-radius": "4px",
+              "border-radius": "var(--evidence-radius-control)",
               background: "var(--color-bg-subtle)",
             }}
           >
@@ -398,7 +399,7 @@ export function FolderPicker(props: PickerProps): JSX.Element {
                 all: "unset",
                 cursor: pathInput().trim() ? "pointer" : "not-allowed",
                 padding: "3px 10px",
-                "border-radius": "4px",
+                "border-radius": "var(--evidence-radius-control)",
                 background: pathInput().trim() ? "var(--color-surface-solid)" : "transparent",
                 border: "1px solid var(--color-border)",
                 "font-family": FONT_MONO,
@@ -427,14 +428,14 @@ export function FolderPicker(props: PickerProps): JSX.Element {
               flex: 1,
               "overflow-y": "auto",
               border: "1px solid var(--color-border)",
-              "border-radius": "4px",
+              "border-radius": "var(--evidence-radius-control)",
               background: "var(--color-surface-solid)",
               "min-height": "240px",
               position: "relative",
               // Slight desaturation while loading hints at activity without
               // unmounting the rows — feels much smoother than a full swap.
               opacity: entries.loading ? 0.55 : 1,
-              transition: "opacity 120ms ease",
+              transition: "opacity var(--duration-fast) var(--ease-standard)",
             }}
           >
             {/* Thin indeterminate loading bar across the top while fetching. */}
@@ -493,7 +494,7 @@ export function FolderPicker(props: PickerProps): JSX.Element {
                             all: "unset",
                             cursor: "pointer",
                             padding: "5px 12px",
-                            "border-radius": "4px",
+                            "border-radius": "var(--evidence-radius-control)",
                             border: "1px solid var(--color-border)",
                             "font-family": FONT_MONO,
                             "font-size": "11px",
@@ -543,9 +544,7 @@ export function FolderPicker(props: PickerProps): JSX.Element {
                 </Show>
               }
             >
-              <For each={filtered()}>
-                {(e) => <FolderRow entry={e} onDrill={() => drillInto(e)} />}
-              </For>
+              <For each={filtered()}>{(e) => <FolderRow entry={e} onDrill={() => drillInto(e)} />}</For>
             </Show>
           </div>
 
@@ -662,12 +661,7 @@ function SectionLabel(props: { children: JSX.Element }): JSX.Element {
   )
 }
 
-function SidebarRow(props: {
-  label: string
-  sublabel?: string
-  active: boolean
-  onClick: () => void
-}): JSX.Element {
+function SidebarRow(props: { label: string; sublabel?: string; active: boolean; onClick: () => void }): JSX.Element {
   return (
     <div
       role="button"
@@ -682,7 +676,7 @@ function SidebarRow(props: {
         "align-items": "center",
         gap: "8px",
         padding: "5px 8px",
-        "border-radius": "4px",
+        "border-radius": "var(--evidence-radius-control)",
         background: props.active ? "var(--color-bg-elevated)" : "transparent",
         border: props.active ? "1px solid var(--color-border-strong)" : "1px solid transparent",
         transition: "background 160ms ease, border-color 160ms ease, transform 160ms ease",
@@ -739,7 +733,7 @@ function navBtn(disabled: boolean): JSX.CSSProperties {
     "justify-content": "center",
     width: "22px",
     height: "22px",
-    "border-radius": "4px",
+    "border-radius": "var(--evidence-radius-control)",
     color: "var(--color-text-muted)",
     background: "var(--color-surface-solid)",
     border: "1px solid var(--color-border)",
@@ -752,7 +746,7 @@ function cancelBtn(): JSX.CSSProperties {
     all: "unset",
     cursor: "pointer",
     padding: "6px 12px",
-    "border-radius": "4px",
+    "border-radius": "var(--evidence-radius-control)",
     border: "1px solid var(--color-border)",
     background: "var(--color-surface-solid)",
     "font-family": FONT_MONO,
@@ -766,7 +760,7 @@ function primaryBtn(): JSX.CSSProperties {
     all: "unset",
     cursor: "pointer",
     padding: "6px 14px",
-    "border-radius": "4px",
+    "border-radius": "var(--evidence-radius-control)",
     background: "var(--color-accent)",
     color: "var(--color-on-accent)",
     "font-family": FONT_MONO,

@@ -87,8 +87,8 @@ export function SkillsBrowser(props: { onPick: (name: string) => void; onClose: 
         "flex-direction": "column",
         background: "var(--color-surface-solid)",
         border: "1px solid var(--color-border-strong)",
-        "border-radius": "4px",
-        "box-shadow": "var(--shadow-md)",
+        "border-radius": "var(--evidence-radius-panel)",
+        "box-shadow": "var(--evidence-shadow-panel)",
         overflow: "hidden",
         "z-index": 40,
       }}
@@ -104,8 +104,8 @@ export function SkillsBrowser(props: { onPick: (name: string) => void; onClose: 
       >
         <span
           style={{
-            "font-family": FONT_MONO,
-            "font-size": "10px",
+            "font-family": FONT_SANS,
+            "font-size": "12px",
             "letter-spacing": "0.08em",
             "text-transform": "uppercase",
             color: "var(--color-text-faint)",
@@ -128,7 +128,7 @@ export function SkillsBrowser(props: { onPick: (name: string) => void; onClose: 
             all: "unset",
             flex: 1,
             "font-family": FONT_SANS,
-            "font-size": "12px",
+            "font-size": "14px",
             color: "var(--color-text)",
             padding: "2px 4px",
           }}
@@ -158,8 +158,8 @@ export function SkillsBrowser(props: { onPick: (name: string) => void; onClose: 
               style={{
                 padding: "18px 10px",
                 "text-align": "center",
-                "font-family": FONT_MONO,
-                "font-size": "11px",
+                "font-family": FONT_SANS,
+                "font-size": "14px",
                 color: "var(--color-text-faint)",
               }}
             >
@@ -195,7 +195,7 @@ export function SkillsBrowser(props: { onPick: (name: string) => void; onClose: 
                         "flex-direction": "column",
                         gap: "2px",
                         padding: "7px 8px",
-                        "border-radius": "4px",
+                        "border-radius": "var(--evidence-radius-control)",
                         width: "100%",
                         "box-sizing": "border-box",
                       }}
@@ -205,7 +205,7 @@ export function SkillsBrowser(props: { onPick: (name: string) => void; onClose: 
                       <span
                         style={{
                           "font-family": FONT_SANS,
-                          "font-size": "13px",
+                          "font-size": "14px",
                           "font-weight": 500,
                           color: "var(--color-text)",
                         }}
@@ -239,7 +239,7 @@ export function SkillsBrowser(props: { onPick: (name: string) => void; onClose: 
                                   color: "var(--color-text-faint)",
                                   background: "var(--color-accent-subtle)",
                                   padding: "1px 5px",
-                                  "border-radius": "4px",
+                                  "border-radius": "var(--evidence-radius-control)",
                                 }}
                               >
                                 {tag}
@@ -321,7 +321,7 @@ export function SkillLibraryDialog(props: { onPick: (name: string) => void }): J
             gap: "8px",
             padding: "8px 10px",
             border: "1px solid var(--color-border-strong)",
-            "border-radius": "4px",
+            "border-radius": "var(--evidence-radius-control)",
             background: "var(--color-bg)",
           }}
         >
@@ -414,7 +414,7 @@ export function SkillLibraryDialog(props: { onPick: (name: string) => void }): J
                           "flex-direction": "column",
                           gap: "3px",
                           padding: "8px 10px",
-                          "border-radius": "4px",
+                          "border-radius": "var(--evidence-radius-control)",
                           border: "1px solid transparent",
                           width: "100%",
                           "box-sizing": "border-box",
@@ -430,7 +430,7 @@ export function SkillLibraryDialog(props: { onPick: (name: string) => void }): J
                       >
                         <span
                           style={{
-                            "font-family": FONT_MONO,
+                            "font-family": FONT_SANS,
                             "font-size": "14px",
                             "font-weight": 500,
                             color: "var(--color-text)",
@@ -442,7 +442,7 @@ export function SkillLibraryDialog(props: { onPick: (name: string) => void }): J
                           <span
                             style={{
                               "font-family": FONT_SANS,
-                              "font-size": "13px",
+                              "font-size": "14px",
                               color: "var(--color-text-muted)",
                               "line-height": 1.5,
                               display: "-webkit-box",
@@ -465,7 +465,7 @@ export function SkillLibraryDialog(props: { onPick: (name: string) => void }): J
                                     color: "var(--color-text-faint)",
                                     background: "var(--color-accent-subtle)",
                                     padding: "1px 6px",
-                                    "border-radius": "4px",
+                                    "border-radius": "var(--evidence-radius-control)",
                                   }}
                                 >
                                   {tag}

@@ -1,28 +1,14 @@
 import { test, expect } from "./fixtures"
-import { modKey, promptSelector } from "./utils"
+import { modKey } from "./utils"
 
-test("hiding a model removes it from the model picker", async ({ page, gotoSession }) => {
+test("model picker and local model settings remain available without a provider", async ({ page, gotoSession }) => {
   await gotoSession()
 
-  await page.locator(promptSelector).click()
-  await page.keyboard.type("/model")
-
-  const command = page.locator('[data-slash-id="model.choose"]')
-  await expect(command).toBeVisible()
-  await command.hover()
-  await page.keyboard.press("Enter")
+  await page.getByRole("button", { name: "select model" }).click()
 
   const picker = page.getByRole("dialog")
   await expect(picker).toBeVisible()
-
-  const target = picker.locator('[data-slot="list-item"]').first()
-  await expect(target).toBeVisible()
-
-  const key = await target.getAttribute("data-key")
-  if (!key) throw new Error("Failed to resolve model key from list item")
-
-  const name = (await target.locator("span").first().innerText()).trim()
-  if (!name) throw new Error("Failed to resolve model name from list item")
+  await expect(picker.getByText("No results", { exact: true })).toBeVisible()
 
   await page.keyboard.press("Escape")
   await expect(picker).toHaveCount(0)
@@ -40,17 +26,10 @@ test("hiding a model removes it from the model picker", async ({ page, gotoSessi
     await expect(settings).toBeVisible()
   }
 
-  await settings.getByRole("tab", { name: "Models" }).click()
-  const search = settings.getByPlaceholder("Search models")
-  await expect(search).toBeVisible()
-  await search.fill(name)
-
-  const toggle = settings.locator('[data-component="switch"]').filter({ hasText: name }).first()
-  const input = toggle.locator('[data-slot="switch-input"]')
-  await expect(toggle).toBeVisible()
-  await expect(input).toHaveAttribute("aria-checked", "true")
-  await toggle.locator('[data-slot="switch-control"]').click()
-  await expect(input).toHaveAttribute("aria-checked", "false")
+  await settings.getByRole("button", { name: "Local models", exact: true }).click()
+  await expect(settings.locator("header").getByText("Local models", { exact: true })).toBeVisible()
+  await expect(settings.getByRole("heading", { name: "Custom endpoint", exact: true })).toBeVisible()
+  await expect(settings.getByRole("heading", { name: "Configured", exact: true })).toBeVisible()
 
   await page.keyboard.press("Escape")
   const closed = await settings
@@ -68,19 +47,4 @@ test("hiding a model removes it from the model picker", async ({ page, gotoSessi
       await expect(settings).toHaveCount(0)
     }
   }
-
-  await page.locator(promptSelector).click()
-  await page.keyboard.type("/model")
-  await expect(command).toBeVisible()
-  await command.hover()
-  await page.keyboard.press("Enter")
-
-  const pickerAgain = page.getByRole("dialog")
-  await expect(pickerAgain).toBeVisible()
-  await expect(pickerAgain.locator('[data-slot="list-item"]').first()).toBeVisible()
-
-  await expect(pickerAgain.locator(`[data-slot="list-item"][data-key="${key}"]`)).toHaveCount(0)
-
-  await page.keyboard.press("Escape")
-  await expect(pickerAgain).toHaveCount(0)
 })

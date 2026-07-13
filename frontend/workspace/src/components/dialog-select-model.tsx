@@ -75,7 +75,7 @@ const ModelList: Component<{
       }}
     >
       {(i) => (
-        <div class="w-full flex items-center gap-x-2 text-13-regular">
+        <div class="w-full flex items-center gap-x-2 text-14-regular">
           <ProviderIcon id={i.provider.id as IconName} class="size-4 shrink-0 opacity-90" />
           <span class="truncate">{i.name}</span>
           <span class="flex items-center gap-x-1.5 ml-auto shrink-0">

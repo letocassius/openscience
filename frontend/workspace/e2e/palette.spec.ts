@@ -1,15 +1,15 @@
 import { test, expect } from "./fixtures"
-import { modKey } from "./utils"
-
 test("search palette opens and closes", async ({ page, gotoSession }) => {
   await gotoSession()
 
-  await page.keyboard.press(`${modKey}+P`)
+  await page.getByTitle("command palette").click()
 
-  const dialog = page.getByRole("dialog")
-  await expect(dialog).toBeVisible()
-  await expect(dialog.getByRole("textbox").first()).toBeVisible()
+  const palette = page
+    .locator(".atlas-modal")
+    .filter({ has: page.getByPlaceholder("search projects, sessions, actions…") })
+  await expect(palette).toBeVisible()
+  await expect(palette.getByRole("textbox")).toBeVisible()
 
   await page.keyboard.press("Escape")
-  await expect(dialog).toHaveCount(0)
+  await expect(palette).toHaveCount(0)
 })

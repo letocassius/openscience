@@ -1,4 +1,26 @@
 import { test, expect } from "./fixtures"
+import type { Locator } from "@playwright/test"
+
+async function expectPopupSurface(surface: Locator) {
+  const value = await surface.evaluate((element) => {
+    const style = getComputedStyle(element)
+    const fonts = Array.from(element.querySelectorAll<HTMLElement>("*")).map(
+      (child) => getComputedStyle(child).fontFamily,
+    )
+    return {
+      radius: style.borderRadius,
+      font: style.fontFamily,
+      background: style.backgroundColor,
+      hasLegacyFont: fonts.some((font) => font.includes("Computer Modern")),
+    }
+  })
+  expect(value).toEqual({
+    radius: "16px",
+    font: expect.stringContaining("Roboto"),
+    background: "rgb(255, 255, 255)",
+    hasLegacyFont: false,
+  })
+}
 
 test.beforeEach(async ({ page }) => {
   await page.addInitScript(() => localStorage.setItem("openscience.setup.dismissed", "1"))
@@ -163,4 +185,32 @@ test("shared dialogs use the PandaScience surface contract", async ({ page }) =>
     duration: "0.15s",
     easing: "cubic-bezier(0.4, 0, 0.2, 1)",
   })
+})
+
+test("representative popups share the PandaScience surface and action hierarchy", async ({ page, gotoSession }) => {
+  await page.goto("/")
+
+  await page.getByRole("button", { name: "New project" }).click()
+  let dialog = page.locator('[data-component="dialog"] [data-slot="dialog-content"]')
+  await expectPopupSurface(dialog)
+  await expect(dialog.getByRole("button", { name: "open this folder", exact: true })).toHaveCSS("border-radius", "8px")
+  await page.keyboard.press("Escape")
+
+  await page.getByRole("button", { name: /localhost|127\.0\.0\.1/ }).click()
+  dialog = page.getByRole("dialog")
+  await expectPopupSurface(dialog)
+  await page.keyboard.press("Escape")
+
+  await gotoSession()
+  await page.getByTitle("command palette").click()
+  const palette = page
+    .locator(".atlas-modal")
+    .filter({ has: page.getByPlaceholder("search projects, sessions, actions…") })
+  await expect(palette).toBeVisible()
+  await expectPopupSurface(palette)
+  await page.keyboard.press("Escape")
+
+  await page.getByRole("button", { name: "Settings" }).first().click()
+  dialog = page.getByRole("dialog")
+  await expectPopupSurface(dialog)
 })

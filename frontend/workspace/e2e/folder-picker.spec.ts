@@ -107,6 +107,7 @@ test("open this folder is the only submission action", async ({ page, directory 
   const picker = page.locator('[data-component="dialog"]')
   await picker.getByPlaceholder(/paste any absolute path/).fill(directory)
   await picker.getByRole("button", { name: "go", exact: true }).click()
+  await expect(picker.getByTitle(directory, { exact: true })).toBeVisible()
   await picker.getByRole("button", { name: "open this folder", exact: true }).click()
 
   await expect(picker).toHaveCount(0)

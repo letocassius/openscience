@@ -13,19 +13,8 @@ test("can set a default server on web", async ({ page, gotoSession }) => {
   }, DEFAULT_SERVER_URL_KEY)
 
   await gotoSession()
-
-  const status = page.getByRole("button", { name: "Status" })
-  await expect(status).toBeVisible()
-  const popover = page.locator('[data-component="popover-content"]').filter({ hasText: "Manage servers" })
-
-  const ensurePopoverOpen = async () => {
-    if (await popover.isVisible()) return
-    await status.click()
-    await expect(popover).toBeVisible()
-  }
-
-  await ensurePopoverOpen()
-  await popover.getByRole("button", { name: "Manage servers" }).click()
+  await page.goto("/")
+  await page.getByRole("button", { name: serverName }).click()
 
   const dialog = page.getByRole("dialog")
   await expect(dialog).toBeVisible()
@@ -35,10 +24,13 @@ test("can set a default server on web", async ({ page, gotoSession }) => {
 
   const menu = row.locator('[data-component="icon-button"]').last()
   await menu.click()
-  await page.getByRole("menuitem", { name: "Set as default" }).click()
+  await page
+    .locator('[role="menuitem"]')
+    .filter({ hasText: /set as default/i })
+    .click()
 
   await expect.poll(() => page.evaluate((key) => localStorage.getItem(key), DEFAULT_SERVER_URL_KEY)).toBe(serverUrl)
-  await expect(row.getByText("Default", { exact: true })).toBeVisible()
+  await expect(row.getByText(/^default$/i)).toBeVisible()
 
   await page.keyboard.press("Escape")
   const closed = await dialog
@@ -59,9 +51,12 @@ test("can set a default server on web", async ({ page, gotoSession }) => {
     }
   }
 
-  await ensurePopoverOpen()
-
-  const serverRow = popover.locator("button").filter({ hasText: serverName }).first()
-  await expect(serverRow).toBeVisible()
-  await expect(serverRow.getByText("Default", { exact: true })).toBeVisible()
+  await page.getByRole("button", { name: serverName }).click()
+  const reopened = page.getByRole("dialog")
+  await expect(
+    reopened
+      .locator('[data-slot="list-item"]')
+      .filter({ hasText: serverName })
+      .getByText(/^default$/i),
+  ).toBeVisible()
 })

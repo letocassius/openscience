@@ -135,10 +135,10 @@ export function SetupDialog(props: { onDismiss?: () => void }): JSX.Element {
           <div
             style={{
               "font-family": FONT_SANS,
-              "font-size": "12px",
+              "font-size": "14px",
               color: "var(--color-error)",
               border: "1px solid var(--color-error-muted)",
-              "border-radius": "4px",
+              "border-radius": "var(--evidence-radius-control)",
               padding: "9px 11px",
               "line-height": 1.5,
             }}
@@ -247,11 +247,11 @@ export function SetupDialog(props: { onDismiss?: () => void }): JSX.Element {
                       all: "unset",
                       cursor: "pointer",
                       padding: "5px 12px",
-                      "border-radius": "4px",
+                      "border-radius": "var(--evidence-radius-control)",
                       border: provider() === p.id ? "1px solid var(--color-text)" : "1px solid var(--color-border)",
                       background: provider() === p.id ? "var(--color-accent-subtle)" : "transparent",
-                      "font-family": FONT_MONO,
-                      "font-size": "11px",
+                      "font-family": FONT_SANS,
+                      "font-size": "14px",
                       color: provider() === p.id ? "var(--color-text)" : "var(--color-text-muted)",
                     }}
                   >
@@ -316,10 +316,11 @@ function ChoiceCard(props: {
         "flex-direction": "column",
         gap: "3px",
         padding: "12px 14px",
-        "border-radius": "4px",
+        "border-radius": "var(--evidence-radius-control)",
         border: "1px solid var(--color-border)",
         background: props.muted ? "transparent" : "var(--color-surface-solid, transparent)",
-        transition: "border-color 120ms ease, background 120ms ease",
+        transition:
+          "border-color var(--duration-fast) var(--ease-standard), background var(--duration-fast) var(--ease-standard)",
       }}
       onMouseEnter={(e) => (e.currentTarget.style.borderColor = "var(--color-border-strong)")}
       onMouseLeave={(e) => (e.currentTarget.style.borderColor = "var(--color-border)")}
@@ -355,7 +356,7 @@ function hostOf(url: string): string {
 function intro(): JSX.CSSProperties {
   return {
     "font-family": FONT_SANS,
-    "font-size": "13px",
+    "font-size": "14px",
     color: "var(--color-text-muted)",
     "line-height": 1.55,
     margin: 0,
@@ -363,7 +364,7 @@ function intro(): JSX.CSSProperties {
 }
 
 function label(): JSX.CSSProperties {
-  return { "font-family": FONT_MONO, "font-size": "10px", "letter-spacing": "0.04em", color: "var(--color-text-faint)" }
+  return { "font-family": FONT_SANS, "font-size": "14px", color: "var(--color-text-muted)" }
 }
 
 function code(): JSX.CSSProperties {
