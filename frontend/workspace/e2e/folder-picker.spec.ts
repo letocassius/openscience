@@ -1,4 +1,7 @@
 import { test, expect } from "./fixtures"
+import fs from "node:fs/promises"
+import os from "node:os"
+import path from "node:path"
 
 const SETUP_DISMISS_KEY = "openscience.setup.dismissed"
 const RECENT_KEY = "thesis-folder-picker-recents-v1"
@@ -55,6 +58,32 @@ test("folder row interactions navigate without adding a workspace", async ({ pag
   await expect(picker).toBeVisible()
   await expect(page).toHaveURL("/")
   await expect(picker.getByTitle(`${directory}/frontend`, { exact: true })).toBeVisible()
+})
+
+test("browsing a folder does not register it as a project", async ({ page, sdk }) => {
+  const temp = await fs.mkdtemp(path.join(os.tmpdir(), "openscience-folder-picker-"))
+  const root = await fs.realpath(temp)
+  const candidate = path.join(root, "candidate")
+  await fs.mkdir(candidate)
+
+  try {
+    await page.goto("/")
+    await page.getByRole("button", { name: "New project" }).click()
+
+    const picker = page.locator('[data-component="dialog"]')
+    await picker.getByPlaceholder(/paste any absolute path/).fill(root)
+    await picker.getByRole("button", { name: "go", exact: true }).click()
+
+    const row = picker.getByTitle(`${candidate} · click to enter`, { exact: true })
+    await expect(row).toBeVisible()
+    await row.click()
+    await expect(picker.getByTitle(candidate, { exact: true })).toBeVisible()
+
+    const projects = await sdk.project.list()
+    expect(projects.data?.some((project) => project.worktree === candidate)).toBe(false)
+  } finally {
+    await fs.rm(temp, { recursive: true, force: true })
+  }
 })
 
 test("favorite row interactions never add a workspace", async ({ page }) => {

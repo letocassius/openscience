@@ -7,6 +7,7 @@
  *
  * Routes:
  *   GET  /api/resolve-folder/probe           — does openscience see ~/Desktop?
+ *   GET  /api/resolve-folder/list?path=...   — list folders without registering a project
  *   POST /api/resolve-folder { name, hint, children? }
  */
 
@@ -235,13 +236,30 @@ async function validatePath(input) {
   }
 }
 
+async function browsePath(input) {
+  const absolute = expandPath(input)
+  if (!absolute) return { ok: false, error: "path required" }
+  const stat = await fs.stat(absolute).catch(() => undefined)
+  if (!stat) return { ok: false, absolute, error: "path not found" }
+  if (!stat.isDirectory()) return { ok: false, absolute, error: "path is not a directory" }
+  const real = await fs.realpath(absolute).catch(() => absolute)
+  const listed = await nodeList(real)
+  if (!listed.ok) return { ok: false, absolute: real, error: listed.error }
+  return { ok: true, absolute: real, entries: listed.entries }
+}
+
 async function handle(req, res) {
-  const url = (req.url || "/").split("?")[0]
-  if (url.endsWith("/probe")) {
+  const url = new URL(req.url || "/", "http://localhost")
+  if (url.pathname.endsWith("/list")) {
+    if (req.method !== "GET") return send(res, 405, { error: "GET only" })
+    const result = await browsePath(url.searchParams.get("path"))
+    return send(res, result.ok ? 200 : 400, result)
+  }
+  if (url.pathname.endsWith("/probe")) {
     const r = await probe()
     return send(res, 200, r)
   }
-  if (url.endsWith("/dialog")) {
+  if (url.pathname.endsWith("/dialog")) {
     try {
       const r = await openNativeDialog()
       return send(res, r.unsupported ? 501 : 200, r)
@@ -251,7 +269,7 @@ async function handle(req, res) {
       return send(res, cancelled ? 499 : 500, { error: cancelled ? "cancelled" : message })
     }
   }
-  if (url.endsWith("/validate")) {
+  if (url.pathname.endsWith("/validate")) {
     if (req.method !== "POST") return send(res, 405, { error: "POST only" })
     try {
       const body = JSON.parse((await readBody(req)) || "{}")

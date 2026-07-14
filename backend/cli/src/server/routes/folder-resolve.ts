@@ -10,6 +10,7 @@
  *
  * Routes (all under `/api/resolve-folder`):
  *   GET  /probe              — can we list ~/Desktop? (mac FDA check)
+ *   GET  /list?path=...      — list child folders without registering a project
  *   GET  /dialog             — open OS-native folder dialog (mac only)
  *   POST /validate           — { path } → resolved absolute path
  *   POST /                   — { name, hint?, children? } → best candidate
@@ -159,6 +160,19 @@ function run(command: string, args: string[]): Promise<string> {
 
 export const FolderResolveRoutes = lazy(() =>
   new Hono()
+    .get("/list", async (c) => {
+      const absolute = expandPath(c.req.query("path"))
+      if (!absolute) return c.json({ ok: false, error: "path required" }, 400)
+
+      const stat = await fs.stat(absolute).catch(() => undefined)
+      if (!stat) return c.json({ ok: false, absolute, error: "path not found" }, 404)
+      if (!stat.isDirectory()) return c.json({ ok: false, absolute, error: "path is not a directory" }, 400)
+
+      const real = await fs.realpath(absolute).catch(() => absolute)
+      const listed = await listDirectory(real)
+      if (!listed.ok) return c.json({ ok: false, absolute: real, error: listed.error }, 403)
+      return c.json({ ok: true, absolute: real, entries: listed.entries ?? [] })
+    })
     .get("/probe", async (c) => {
       // macOS Full Disk Access check: can we read ~/Desktop? On Linux/Windows
       // there's no TCC equivalent so we always answer "yes".

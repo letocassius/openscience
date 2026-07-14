@@ -1,7 +1,6 @@
 import { createSignal, createMemo, createResource, createEffect, type JSX, For, Show } from "solid-js"
 import { Dialog } from "@synsci/ui/dialog"
 import { useDialog } from "@synsci/ui/context/dialog"
-import { useGlobalSDK } from "@/context/global-sdk"
 import { useGlobalSync } from "@/context/global-sync"
 import { FONT_MONO, FONT_SANS } from "@/styles/tokens"
 import { validateDirectoryPath } from "@/atlas/openDirectory"
@@ -57,7 +56,6 @@ function pushRecent(path: string) {
  * and returns absolute paths.
  */
 export function FolderPicker(props: PickerProps): JSX.Element {
-  const sdk = useGlobalSDK()
   const sync = useGlobalSync()
   const dialog = useDialog()
 
@@ -72,12 +70,15 @@ export function FolderPicker(props: PickerProps): JSX.Element {
     async (dir): Promise<FolderEntry[]> => {
       setError(undefined)
       try {
-        const res: any = await sdk.client.file.list({ directory: dir, path: "." } as any)
-        const data = res?.data ?? res
-        const list = Array.isArray(data) ? data : []
-        return list
-          .filter((n: any) => n?.type === "directory" && !n.name.startsWith(".") && !n.ignored)
-          .map((n: any) => ({ name: n.name as string, absolute: n.absolute as string }))
+        const response = await fetch(`/api/resolve-folder/list?path=${encodeURIComponent(dir)}`)
+        const data = (await response.json()) as {
+          ok?: boolean
+          entries?: FolderEntry[]
+          error?: string
+        }
+        if (!response.ok || !data.ok) throw new Error(data.error || `Couldn't read ${dir}`)
+        return (data.entries ?? [])
+          .filter((entry) => !entry.name.startsWith("."))
           .sort((a, b) => a.name.localeCompare(b.name))
       } catch (err) {
         // Surface the failure instead of masking it as an empty folder — an
