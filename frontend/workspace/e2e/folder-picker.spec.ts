@@ -113,7 +113,8 @@ test("recent row interactions never add a workspace", async ({ page, directory }
 
   const picker = page.locator('[data-component="dialog"]')
   const name = directory.split("/").filter(Boolean).pop()!
-  const row = picker.getByRole("button", { name: new RegExp(`^${name} ~/`) })
+  const recent = picker.getByText("Recent", { exact: true }).locator("..")
+  const row = recent.getByRole("button").filter({ hasText: name })
   await expect(row).toHaveCount(1)
   await expect(row).toBeVisible()
 

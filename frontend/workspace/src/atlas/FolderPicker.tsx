@@ -205,6 +205,8 @@ export function FolderPicker(props: PickerProps): JSX.Element {
           height: min(calc(100vh - 48px), 680px);
         }
         [data-slot="dialog-content"].folder-picker {
+          height: 100%;
+          min-height: 0;
           overflow: hidden;
         }
         .folder-picker [data-slot="dialog-header"] {
