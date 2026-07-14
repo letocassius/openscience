@@ -828,7 +828,13 @@ function FolderRow(props: {
       <Show when={props.selected}>
         <span class="folder-picker__check" aria-hidden="true">
           <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-            <path d="M2.25 6.2 4.65 8.5 9.75 3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+            <path
+              d="M2.25 6.2 4.65 8.5 9.75 3.5"
+              stroke="currentColor"
+              stroke-width="1.6"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
           </svg>
         </span>
       </Show>
@@ -849,9 +855,7 @@ function FolderRow(props: {
 }
 
 function SectionLabel(props: { children: JSX.Element }): JSX.Element {
-  return (
-    <div class="folder-picker__section">{props.children}</div>
-  )
+  return <div class="folder-picker__section">{props.children}</div>
 }
 
 function SidebarRow(props: {
