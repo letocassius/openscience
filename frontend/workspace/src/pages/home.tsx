@@ -113,19 +113,24 @@ export default function Home(): JSX.Element {
     return all.filter((p) => p.worktree.toLowerCase().includes(q))
   })
 
-  function openProject(directory: string) {
-    // Visiting a path also un-hides it, so a previously-deleted card
-    // re-appears on the home grid as soon as the user opens it again.
+  function addProject(directory: string) {
+    // Adding a path also un-hides it, so a previously-deleted card
+    // re-appears on the home grid as soon as the user registers it again.
     projectPrefs.unhide(directory)
     layout.projects.open(directory)
     server.projects.touch(directory)
+  }
+
+  function openProject(directory: string) {
+    addProject(directory)
     // Opening a folder (or a session) creates no Atlas state. The atlas CLI
     // handles projects and nodes on demand when the agent uses it.
     navigate(`/${base64Encode(directory)}/session`)
   }
 
   /**
-   * "open folder…" / "+ new project" — pick a directory and open it.
+   * "open folder…" / "+ new project" — pick a directory and add it to the
+   * project registry. Opening remains a separate action on the project card.
    *
    * Path priority:
    *   1. desktop app (Tauri NSOpenPanel) — gives absolute paths native.
@@ -140,10 +145,10 @@ export default function Home(): JSX.Element {
   async function chooseProject() {
     function resolveResult(result: string | string[] | null) {
       if (Array.isArray(result)) {
-        for (const directory of result) openProject(directory)
-      } else if (result) {
-        openProject(result)
+        for (const directory of result) addProject(directory)
+        return
       }
+      if (result) addProject(result)
     }
     // Tauri desktop wrapper still uses the native NSOpenPanel — it returns
     // absolute paths directly and keeps the desktop app feeling native.

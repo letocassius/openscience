@@ -112,7 +112,8 @@ test("recent row interactions never add a workspace", async ({ page, directory }
   await page.getByRole("button", { name: "New project" }).click()
 
   const picker = page.locator('[data-component="dialog"]')
-  const row = picker.getByRole("button").filter({ hasText: directory })
+  const name = directory.split("/").filter(Boolean).pop()!
+  const row = picker.getByRole("button", { name: new RegExp(name) })
   await expect(row).toHaveCount(1)
   await expect(row).toBeVisible()
 
@@ -129,16 +130,29 @@ test("recent row interactions never add a workspace", async ({ page, directory }
   await expect(page).toHaveURL("/")
 })
 
-test("open this folder is the only submission action", async ({ page, directory }) => {
-  await page.goto("/")
-  await page.getByRole("button", { name: "New project" }).click()
+test("add workspace registers the folder without opening it", async ({ page, sdk }) => {
+  const temp = await fs.mkdtemp(path.join(os.tmpdir(), "openscience-add-workspace-"))
+  const directory = await fs.realpath(temp)
 
-  const picker = page.locator('[data-component="dialog"]')
-  await picker.getByPlaceholder(/paste any absolute path/).fill(directory)
-  await picker.getByRole("button", { name: "go", exact: true }).click()
-  await expect(picker.getByTitle(directory, { exact: true })).toBeVisible()
-  await picker.getByRole("button", { name: "open this folder", exact: true }).click()
+  try {
+    await page.goto("/")
+    await page.getByRole("button", { name: "New project" }).click()
 
-  await expect(picker).toHaveCount(0)
-  await expect(page).not.toHaveURL("/")
+    const picker = page.locator('[data-component="dialog"]')
+    await picker.getByPlaceholder(/paste any absolute path/).fill(directory)
+    await picker.getByRole("button", { name: "go", exact: true }).click()
+    await expect(picker.getByTitle(directory, { exact: true })).toBeVisible()
+    await picker.getByRole("button", { name: "Add workspace", exact: true }).click()
+
+    await expect(picker).toHaveCount(0)
+    await expect(page).toHaveURL("/")
+    await expect
+      .poll(async () => {
+        const projects = await sdk.project.list()
+        return projects.data?.filter((project) => project.worktree === directory).length ?? 0
+      })
+      .toBe(1)
+  } finally {
+    await fs.rm(temp, { recursive: true, force: true })
+  }
 })

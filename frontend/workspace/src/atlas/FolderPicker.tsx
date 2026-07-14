@@ -191,7 +191,7 @@ export function FolderPicker(props: PickerProps): JSX.Element {
   const recents = createMemo(() => readRecents())
 
   return (
-    <Dialog title="Open folder" size="large" transition>
+    <Dialog title="Add workspace" size="large" transition>
       <div
         style={{
           display: "flex",
@@ -580,11 +580,11 @@ export function FolderPicker(props: PickerProps): JSX.Element {
                 const valid = await validateDirectoryPath(cwd())
                 if (valid) pick(valid)
               }}
-              title="open the current folder as a project"
+              title="add the current folder to the workspace list"
               style={primaryBtn()}
             >
               <IconArrowRight size={11} strokeWidth={2} />
-              open this folder
+              Add workspace
             </button>
           </div>
         </div>
