@@ -16,7 +16,7 @@ test.beforeEach(async ({ page, directory }) => {
   )
 })
 
-test("folder row interactions navigate without adding a workspace", async ({ page, directory }) => {
+test("folder rows select separately from disclosure navigation", async ({ page, directory }) => {
   await page.goto("/")
   await page.getByRole("button", { name: "New project" }).click()
 
@@ -25,42 +25,35 @@ test("folder row interactions navigate without adding a workspace", async ({ pag
   await picker.getByPlaceholder(/paste any absolute path/).fill(directory)
   await picker.getByRole("button", { name: "go", exact: true }).click()
 
-  const rowTitle = `${directory}/frontend · click to enter`
-  let row = picker.getByTitle(rowTitle, { exact: true })
-  await expect(picker.getByRole("button", { name: "frontend", exact: true })).toHaveCount(1)
-  await expect(row).toHaveCount(1)
+  let row = picker.getByRole("option").filter({ hasText: "frontend" })
   await expect(row).toBeVisible()
-  await expect(picker.getByRole("button", { name: "open", exact: true })).toHaveCount(0)
-  await expect(picker.getByTitle("open this folder as a project", { exact: true })).toHaveCount(0)
 
   await row.click()
   await expect(picker).toBeVisible()
   await expect(page).toHaveURL("/")
-  await expect(picker.getByTitle(`${directory}/frontend`, { exact: true })).toBeVisible()
+  await expect(row).toHaveAttribute("aria-selected", "true")
+  await expect(picker.getByText(`${directory}/frontend`, { exact: true })).toBeVisible()
 
-  await picker.getByPlaceholder(/paste any absolute path/).fill(directory)
-  await picker.getByRole("button", { name: "go", exact: true }).click()
-  await expect(picker.getByTitle(directory, { exact: true })).toBeVisible()
-  row = picker.getByTitle(rowTitle, { exact: true })
-  await row.dblclick()
-  await expect(picker).toBeVisible()
+  await row.getByRole("button", { name: "Open frontend", exact: true }).click()
+  await expect(picker.getByText(`${directory}/frontend`, { exact: true })).toBeVisible()
   await expect(page).toHaveURL("/")
-  await expect(picker.getByTitle(`${directory}/frontend`, { exact: true })).toBeVisible()
 
   await picker.getByPlaceholder(/paste any absolute path/).fill(directory)
   await picker.getByRole("button", { name: "go", exact: true }).click()
   await expect(picker.getByTitle(directory, { exact: true })).toBeVisible()
-  row = picker.getByTitle(rowTitle, { exact: true })
+  row = picker.getByRole("option").filter({ hasText: "frontend" })
   await expect(row).toBeVisible()
   await row.focus()
   await expect(row).toBeFocused()
   await page.keyboard.press("Enter")
+  await expect(row).toHaveAttribute("aria-selected", "true")
+  await page.keyboard.press("ArrowRight")
   await expect(picker).toBeVisible()
   await expect(page).toHaveURL("/")
-  await expect(picker.getByTitle(`${directory}/frontend`, { exact: true })).toBeVisible()
+  await expect(picker.getByText(`${directory}/frontend`, { exact: true })).toBeVisible()
 })
 
-test("browsing a folder does not register it as a project", async ({ page, sdk }) => {
+test("selecting and browsing a folder does not register it as a project", async ({ page, sdk }) => {
   const temp = await fs.mkdtemp(path.join(os.tmpdir(), "openscience-folder-picker-"))
   const root = await fs.realpath(temp)
   const candidate = path.join(root, "candidate")
@@ -74,10 +67,13 @@ test("browsing a folder does not register it as a project", async ({ page, sdk }
     await picker.getByPlaceholder(/paste any absolute path/).fill(root)
     await picker.getByRole("button", { name: "go", exact: true }).click()
 
-    const row = picker.getByTitle(`${candidate} · click to enter`, { exact: true })
+    const row = picker.getByRole("option").filter({ hasText: "candidate" })
     await expect(row).toBeVisible()
     await row.click()
-    await expect(picker.getByTitle(candidate, { exact: true })).toBeVisible()
+    await expect(row).toHaveAttribute("aria-selected", "true")
+
+    await row.getByRole("button", { name: "Open candidate", exact: true }).click()
+    await expect(picker.getByText(candidate, { exact: true })).toBeVisible()
 
     const projects = await sdk.project.list()
     expect(projects.data?.some((project) => project.worktree === candidate)).toBe(false)
@@ -113,7 +109,7 @@ test("recent row interactions never add a workspace", async ({ page, directory }
 
   const picker = page.locator('[data-component="dialog"]')
   const name = directory.split("/").filter(Boolean).pop()!
-  const row = picker.getByRole("button", { name: new RegExp(name) })
+  const row = picker.getByRole("button", { name: new RegExp(`^${name} ~/`) })
   await expect(row).toHaveCount(1)
   await expect(row).toBeVisible()
 

@@ -12,6 +12,7 @@ import {
   IconSearch,
   IconRefresh,
   IconHome,
+  IconCheckCircle,
 } from "@/atlas/shared/Icon"
 
 interface FolderEntry {
@@ -61,6 +62,7 @@ export function FolderPicker(props: PickerProps): JSX.Element {
 
   const home = () => sync.data.path.home || "/"
   const [cwd, setCwd] = createSignal(home())
+  const [selected, setSelected] = createSignal(home())
   const [filter, setFilter] = createSignal("")
   const [pathInput, setPathInput] = createSignal("")
   const [error, setError] = createSignal<string>()
@@ -126,23 +128,22 @@ export function FolderPicker(props: PickerProps): JSX.Element {
     return segs
   })
 
+  const enter = (path: string) => {
+    setCwd(path)
+    setSelected(path)
+    setFilter("")
+  }
+
   const goUp = () => {
     const cur = cwd()
     if (cur === "/" || cur === "") return
     const i = cur.lastIndexOf("/")
-    setCwd(i <= 0 ? "/" : cur.slice(0, i))
-    setFilter("")
+    enter(i <= 0 ? "/" : cur.slice(0, i))
   }
 
-  const drillInto = (e: FolderEntry) => {
-    setCwd(e.absolute)
-    setFilter("")
-  }
+  const drillInto = (entry: FolderEntry) => enter(entry.absolute)
 
-  const goTo = (path: string) => {
-    setCwd(path)
-    setFilter("")
-  }
+  const goTo = (path: string) => enter(path)
 
   /** Resolve `~` / relative segments and jump there. */
   const normalizeTyped = (raw: string) => {
@@ -160,8 +161,7 @@ export function FolderPicker(props: PickerProps): JSX.Element {
     if (!abs) return
     const valid = await validateDirectoryPath(abs)
     if (!valid) return
-    setCwd(valid)
-    setFilter("")
+    enter(valid)
     setPathInput("")
   }
 
@@ -416,6 +416,8 @@ export function FolderPicker(props: PickerProps): JSX.Element {
           {/* Folder list */}
           <div
             class="atlas-scroll"
+            role="listbox"
+            aria-label="Folders"
             ref={(el) => {
               // Reset scroll position whenever the user navigates so the new
               // folder always starts at the top instead of carrying the prior
@@ -545,7 +547,16 @@ export function FolderPicker(props: PickerProps): JSX.Element {
                 </Show>
               }
             >
-              <For each={filtered()}>{(e) => <FolderRow entry={e} onDrill={() => drillInto(e)} />}</For>
+              <For each={filtered()}>
+                {(entry) => (
+                  <FolderRow
+                    entry={entry}
+                    selected={selected() === entry.absolute}
+                    onSelect={() => setSelected(entry.absolute)}
+                    onDrill={() => drillInto(entry)}
+                  />
+                )}
+              </For>
             </Show>
           </div>
 
@@ -568,16 +579,16 @@ export function FolderPicker(props: PickerProps): JSX.Element {
                 "text-overflow": "ellipsis",
                 "white-space": "nowrap",
               }}
-              title={cwd()}
+              title={selected()}
             >
-              {cwd().replace(home(), "~")}
+              {selected()}
             </span>
             <button onClick={cancel} style={cancelBtn()}>
               cancel
             </button>
             <button
               onClick={async () => {
-                const valid = await validateDirectoryPath(cwd())
+                const valid = await validateDirectoryPath(selected())
                 if (valid) pick(valid)
               }}
               title="add the current folder to the workspace list"
@@ -593,29 +604,40 @@ export function FolderPicker(props: PickerProps): JSX.Element {
   )
 }
 
-function FolderRow(props: { entry: FolderEntry; onDrill: () => void }): JSX.Element {
+function FolderRow(props: {
+  entry: FolderEntry
+  selected: boolean
+  onSelect: () => void
+  onDrill: () => void
+}): JSX.Element {
   const [hover, setHover] = createSignal(false)
   return (
     <div
-      role="button"
+      role="option"
       tabindex="0"
-      onClick={props.onDrill}
+      aria-selected={props.selected}
+      onClick={props.onSelect}
+      onDblClick={props.onDrill}
       onKeyDown={(event) => {
-        if (event.key === "Enter") props.onDrill()
+        if (event.key === "Enter" || event.key === " ") props.onSelect()
+        if (event.key === "ArrowRight") props.onDrill()
       }}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
-      title={`${props.entry.absolute} · click to enter`}
+      title={props.entry.absolute}
       style={{
-        cursor: "pointer",
+        cursor: "default",
         display: "flex",
         "align-items": "center",
         gap: "10px",
         padding: "8px 12px",
         "border-bottom": "1px solid var(--color-border)",
-        background: hover() ? "var(--color-accent-subtle)" : "transparent",
-        transform: hover() ? "translateX(2px)" : "translateX(0)",
-        transition: "background 160ms ease, transform 160ms ease",
+        background: props.selected
+          ? "var(--evidence-accent-soft, #e7f6ee)"
+          : hover()
+            ? "var(--color-accent-subtle)"
+            : "transparent",
+        transition: "background 160ms ease",
       }}
     >
       <IconFolder size={13} strokeWidth={1.5} />
@@ -632,15 +654,31 @@ function FolderRow(props: { entry: FolderEntry; onDrill: () => void }): JSX.Elem
       >
         {props.entry.name}
       </span>
-      <IconChevronRight
-        size={11}
-        strokeWidth={1.5}
-        style={{
-          opacity: hover() ? 1 : 0.5,
-          transform: hover() ? "translateX(2px)" : "translateX(0)",
-          transition: "opacity 160ms ease, transform 160ms ease",
+      <Show when={props.selected}>
+        <IconCheckCircle size={16} strokeWidth={1.5} style={{ color: "var(--evidence-primary, #21965f)" }} />
+      </Show>
+      <button
+        type="button"
+        aria-label={`Open ${props.entry.name}`}
+        onClick={(event) => {
+          event.stopPropagation()
+          props.onDrill()
         }}
-      />
+        style={{
+          all: "unset",
+          cursor: "pointer",
+          display: "inline-flex",
+          "align-items": "center",
+          "justify-content": "center",
+          width: "24px",
+          height: "24px",
+          "border-radius": "var(--evidence-radius-control)",
+          opacity: hover() ? 1 : 0.5,
+          transition: "opacity 160ms ease",
+        }}
+      >
+        <IconChevronRight size={11} strokeWidth={1.5} />
+      </button>
     </div>
   )
 }
