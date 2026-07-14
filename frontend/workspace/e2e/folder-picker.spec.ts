@@ -22,8 +22,8 @@ test("folder rows select separately from disclosure navigation", async ({ page, 
 
   const picker = page.locator('[data-component="dialog"]')
   await expect(picker).toBeVisible()
-  await picker.getByPlaceholder(/paste any absolute path/).fill(directory)
-  await picker.getByRole("button", { name: "go", exact: true }).click()
+  await picker.getByPlaceholder("Enter a path…").fill(directory)
+  await picker.getByRole("button", { name: "Go", exact: true }).click()
 
   let row = picker.getByRole("option").filter({ hasText: "frontend" })
   await expect(row).toBeVisible()
@@ -38,8 +38,8 @@ test("folder rows select separately from disclosure navigation", async ({ page, 
   await expect(picker.getByText(`${directory}/frontend`, { exact: true })).toBeVisible()
   await expect(page).toHaveURL("/")
 
-  await picker.getByPlaceholder(/paste any absolute path/).fill(directory)
-  await picker.getByRole("button", { name: "go", exact: true }).click()
+  await picker.getByPlaceholder("Enter a path…").fill(directory)
+  await picker.getByRole("button", { name: "Go", exact: true }).click()
   await expect(picker.getByTitle(directory, { exact: true })).toBeVisible()
   row = picker.getByRole("option").filter({ hasText: "frontend" })
   await expect(row).toBeVisible()
@@ -64,8 +64,8 @@ test("selecting and browsing a folder does not register it as a project", async 
     await page.getByRole("button", { name: "New project" }).click()
 
     const picker = page.locator('[data-component="dialog"]')
-    await picker.getByPlaceholder(/paste any absolute path/).fill(root)
-    await picker.getByRole("button", { name: "go", exact: true }).click()
+    await picker.getByPlaceholder("Enter a path…").fill(root)
+    await picker.getByRole("button", { name: "Go", exact: true }).click()
 
     const row = picker.getByRole("option").filter({ hasText: "candidate" })
     await expect(row).toBeVisible()
@@ -87,7 +87,7 @@ test("favorite row interactions never add a workspace", async ({ page }) => {
   await page.getByRole("button", { name: "New project" }).click()
 
   const picker = page.locator('[data-component="dialog"]')
-  const row = picker.getByRole("button", { name: "Home", exact: true })
+  const row = picker.getByRole("complementary").getByRole("button", { name: "Home", exact: true })
   await expect(row).toBeVisible()
 
   await row.click()
@@ -135,9 +135,9 @@ test("add workspace registers the folder without opening it", async ({ page, sdk
     await page.getByRole("button", { name: "New project" }).click()
 
     const picker = page.locator('[data-component="dialog"]')
-    await picker.getByPlaceholder(/paste any absolute path/).fill(directory)
-    await picker.getByRole("button", { name: "go", exact: true }).click()
-    await expect(picker.getByTitle(directory, { exact: true })).toBeVisible()
+    await picker.getByPlaceholder("Enter a path…").fill(directory)
+    await picker.getByRole("button", { name: "Go", exact: true }).click()
+    await expect(picker.getByText(directory, { exact: true })).toBeVisible()
     await picker.getByRole("button", { name: "Add workspace", exact: true }).click()
 
     await expect(picker).toHaveCount(0)

@@ -51,7 +51,8 @@ function pushRecent(path: string) {
  *   - left sidebar with quick-link shortcuts (Home, Desktop, Documents,
  *     Downloads, Applications) plus recents
  *   - main pane with breadcrumbs + folder list
- *   - single click drills in, "open this folder" picks the cwd
+ *   - single click selects, while disclosure or double-click drills in
+ *   - "Add workspace" registers the selected folder without navigating
  *
  * Backed by openscience's /file endpoint, which walks the real filesystem
  * and returns absolute paths.
@@ -191,279 +192,511 @@ export function FolderPicker(props: PickerProps): JSX.Element {
   const recents = createMemo(() => readRecents())
 
   return (
-    <Dialog title="Add workspace" size="large" transition>
-      <div
-        style={{
-          display: "flex",
-          gap: "12px",
-          "min-height": "480px",
-          "max-height": "560px",
-        }}
-      >
-        {/* Sidebar */}
-        <div
-          style={{
-            flex: "0 0 180px",
-            display: "flex",
-            "flex-direction": "column",
-            gap: "14px",
-            "border-right": "1px solid var(--color-border)",
-            "padding-right": "10px",
-            overflow: "auto",
-          }}
-        >
-          <div style={{ display: "flex", "flex-direction": "column", gap: "1px" }}>
-            <SectionLabel>favorites</SectionLabel>
+    <Dialog
+      title="Add workspace"
+      description="Choose a folder to add to your project registry. You can open it from the workspace list afterward."
+      size="x-large"
+      class="folder-picker"
+      transition
+    >
+      <style>{`
+        [data-component="dialog"]:has(.folder-picker) [data-slot="dialog-container"] {
+          height: min(calc(100vh - 48px), 680px);
+        }
+        [data-slot="dialog-content"].folder-picker {
+          overflow: hidden;
+        }
+        .folder-picker [data-slot="dialog-header"] {
+          padding: 24px 32px 8px;
+        }
+        .folder-picker [data-slot="dialog-description"] {
+          padding: 0 32px 20px;
+        }
+        .folder-picker__body {
+          display: grid;
+          grid-template-columns: 210px minmax(0, 1fr);
+          min-height: 0;
+          flex: 1;
+          border-top: 1px solid var(--color-border);
+          border-bottom: 1px solid var(--color-border);
+        }
+        .folder-picker__sidebar {
+          width: 210px;
+          box-sizing: border-box;
+          padding: 18px 14px;
+          overflow: auto;
+          border-right: 1px solid var(--color-border);
+          background: var(--color-surface-solid);
+        }
+        .folder-picker__group + .folder-picker__group {
+          margin-top: 20px;
+        }
+        .folder-picker__section {
+          padding: 4px 8px 8px;
+          color: var(--color-text-faint);
+          font: 11px/1.4 ${FONT_SANS};
+          font-weight: 500;
+        }
+        .folder-picker__side-row {
+          display: flex;
+          min-height: 44px;
+          align-items: center;
+          gap: 10px;
+          box-sizing: border-box;
+          padding: 7px 10px;
+          border: 1px solid transparent;
+          border-radius: 8px;
+          color: var(--color-text);
+          cursor: pointer;
+          transition: background 160ms var(--ease-standard), border-color 160ms var(--ease-standard);
+        }
+        .folder-picker__side-row:hover {
+          background: var(--color-bg-subtle);
+        }
+        .folder-picker__side-row--active {
+          border-color: color-mix(in srgb, var(--evidence-primary, #21965f) 14%, transparent);
+          background: var(--evidence-accent-soft, #e7f6ee);
+        }
+        .folder-picker__side-copy {
+          display: flex;
+          min-width: 0;
+          flex: 1;
+          flex-direction: column;
+        }
+        .folder-picker__side-label {
+          overflow: hidden;
+          color: var(--color-text);
+          font: 13px/1.4 ${FONT_SANS};
+          font-weight: 500;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        .folder-picker__side-path {
+          overflow: hidden;
+          margin-top: 2px;
+          color: var(--color-text-faint);
+          font: 10px/1.4 ${FONT_MONO};
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        .folder-picker__browser {
+          display: flex;
+          min-width: 0;
+          min-height: 0;
+          flex-direction: column;
+          padding: 10px 16px 0;
+          background: var(--color-surface-solid);
+        }
+        .folder-picker__nav,
+        .folder-picker__tools {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          flex-shrink: 0;
+        }
+        .folder-picker__nav {
+          min-height: 40px;
+          padding-bottom: 8px;
+          border-bottom: 1px solid var(--color-border);
+        }
+        .folder-picker__tools {
+          margin-top: 8px;
+        }
+        .folder-picker__icon,
+        .folder-picker__disclosure {
+          all: unset;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          width: 36px;
+          height: 36px;
+          flex: 0 0 36px;
+          box-sizing: border-box;
+          border: 1px solid var(--color-border);
+          border-radius: 8px;
+          color: var(--color-text-muted);
+          background: var(--color-surface-solid);
+          cursor: pointer;
+        }
+        .folder-picker__icon:disabled {
+          opacity: 0.4;
+          cursor: not-allowed;
+        }
+        .folder-picker__crumbs {
+          display: flex;
+          min-width: 0;
+          align-items: center;
+          gap: 5px;
+          flex: 1;
+          overflow: hidden;
+          color: var(--color-text-faint);
+          font: 12px/1.4 ${FONT_MONO};
+        }
+        .folder-picker__crumbs button {
+          all: unset;
+          overflow: hidden;
+          padding: 4px 5px;
+          border-radius: 6px;
+          color: var(--color-text-muted);
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          cursor: pointer;
+        }
+        .folder-picker__crumbs button:last-of-type {
+          color: var(--color-text);
+          font-weight: 600;
+        }
+        .folder-picker__search,
+        .folder-picker__path {
+          display: flex;
+          height: 40px;
+          align-items: center;
+          gap: 8px;
+          box-sizing: border-box;
+          border: 1px solid var(--color-border);
+          border-radius: 8px;
+          background: var(--color-surface-solid);
+          color: var(--color-text-muted);
+        }
+        .folder-picker__search {
+          flex: 1;
+          padding: 0 12px;
+        }
+        .folder-picker__path {
+          width: min(260px, 42%);
+          padding-left: 12px;
+        }
+        .folder-picker__search input,
+        .folder-picker__path input {
+          all: unset;
+          min-width: 0;
+          flex: 1;
+          color: var(--color-text);
+          font: 13px/1.4 ${FONT_SANS};
+        }
+        .folder-picker__path input {
+          font-family: ${FONT_MONO};
+          font-size: 11px;
+        }
+        .folder-picker__go {
+          all: unset;
+          align-self: stretch;
+          padding: 0 12px;
+          border-left: 1px solid var(--color-border);
+          color: var(--color-text-muted);
+          font: 12px/1 ${FONT_SANS};
+          cursor: pointer;
+        }
+        .folder-picker__go:disabled {
+          opacity: 0.4;
+          cursor: not-allowed;
+        }
+        .folder-picker__list-head {
+          display: flex;
+          justify-content: space-between;
+          padding: 16px 6px 8px;
+          color: var(--color-text-faint);
+          font: 11px/1.4 ${FONT_SANS};
+        }
+        .folder-picker__list {
+          position: relative;
+          flex: 1;
+          min-height: 0;
+          overflow-y: auto;
+          border-top: 1px solid var(--color-border);
+          background: var(--color-surface-solid);
+          transition: opacity var(--duration-fast) var(--ease-standard);
+        }
+        .folder-picker__row {
+          display: flex;
+          min-height: 46px;
+          align-items: center;
+          gap: 10px;
+          box-sizing: border-box;
+          padding: 0 10px;
+          border-bottom: 1px solid var(--color-border);
+          color: var(--color-text);
+          font: 13px/1.4 ${FONT_SANS};
+          cursor: default;
+          transition: background 160ms var(--ease-standard);
+        }
+        .folder-picker__row:hover {
+          background: var(--color-bg-subtle);
+        }
+        .folder-picker__row--selected,
+        .folder-picker__row--selected:hover {
+          background: var(--evidence-accent-soft, #e7f6ee);
+        }
+        .folder-picker__row-name {
+          min-width: 0;
+          flex: 1;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        .folder-picker__disclosure {
+          width: 28px;
+          height: 28px;
+          flex-basis: 28px;
+          border-color: transparent;
+          background: transparent;
+          transition: opacity 160ms var(--ease-standard), background 160ms var(--ease-standard);
+        }
+        .folder-picker__disclosure:hover {
+          background: color-mix(in srgb, var(--color-text) 6%, transparent);
+        }
+        .folder-picker__loading {
+          position: absolute;
+          inset: 0 auto auto 0;
+          z-index: 1;
+          width: 30%;
+          height: 2px;
+          background: var(--evidence-primary, #21965f);
+          animation: atlas-loading-slide 1.1s ease-in-out infinite;
+          pointer-events: none;
+        }
+        .folder-picker__empty {
+          display: flex;
+          min-height: 180px;
+          align-items: center;
+          justify-content: center;
+          flex-direction: column;
+          gap: 8px;
+          padding: 24px;
+          color: var(--color-text-faint);
+          font: 12px/1.5 ${FONT_SANS};
+          text-align: center;
+        }
+        .folder-picker__empty--error {
+          color: var(--color-error);
+        }
+        .folder-picker__retry {
+          all: unset;
+          padding: 6px 12px;
+          border: 1px solid var(--color-border);
+          border-radius: 8px;
+          color: var(--color-text);
+          font: 12px/1.4 ${FONT_SANS};
+          cursor: pointer;
+        }
+        .folder-picker__footer {
+          display: flex;
+          min-height: 76px;
+          align-items: center;
+          justify-content: space-between;
+          gap: 16px;
+          box-sizing: border-box;
+          padding: 12px 24px;
+          background: var(--color-surface-solid);
+        }
+        .folder-picker__selected {
+          display: flex;
+          min-width: 0;
+          align-items: center;
+          gap: 10px;
+          color: var(--color-text-muted);
+          font: 11px/1.4 ${FONT_MONO};
+        }
+        .folder-picker__selected span {
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        .folder-picker__actions {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          flex-shrink: 0;
+        }
+        .folder-picker__cancel,
+        .folder-picker__primary {
+          min-height: 44px;
+          box-sizing: border-box;
+          padding: 0 18px;
+          border-radius: 8px;
+          font: 600 13px/1 ${FONT_SANS};
+          cursor: pointer;
+        }
+        .folder-picker__cancel {
+          border: 1px solid var(--color-border);
+          color: var(--color-text);
+          background: var(--color-surface-solid);
+        }
+        .folder-picker__primary {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          border: 1px solid var(--evidence-primary, #21965f);
+          color: white;
+          background: var(--evidence-primary, #21965f);
+        }
+        .folder-picker button:focus-visible,
+        .folder-picker input:focus-visible,
+        .folder-picker [role="button"]:focus-visible,
+        .folder-picker [role="option"]:focus-visible {
+          outline: 2px solid var(--evidence-primary, #21965f);
+          outline-offset: 2px;
+        }
+        @media (max-width: 720px) {
+          [data-component="dialog"]:has(.folder-picker) [data-slot="dialog-container"] {
+            height: min(calc(100dvh - 16px), 680px);
+          }
+          .folder-picker [data-slot="dialog-header"] {
+            padding: 18px 18px 6px;
+          }
+          .folder-picker [data-slot="dialog-description"] {
+            padding: 0 18px 16px;
+          }
+          .folder-picker__body {
+            grid-template-columns: minmax(0, 1fr);
+          }
+          .folder-picker__sidebar {
+            display: none;
+          }
+          .folder-picker__browser {
+            padding-inline: 12px;
+          }
+          .folder-picker__tools {
+            align-items: stretch;
+            flex-direction: column;
+          }
+          .folder-picker__path {
+            width: 100%;
+          }
+          .folder-picker__footer {
+            min-height: 104px;
+            align-items: stretch;
+            flex-direction: column;
+            padding: 10px 16px 14px;
+          }
+          .folder-picker__actions {
+            justify-content: flex-end;
+          }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .folder-picker__list,
+          .folder-picker__row,
+          .folder-picker__loading {
+            animation-duration: 0.01ms !important;
+            transition-duration: 0.01ms !important;
+          }
+        }
+      `}</style>
+
+      <div class="folder-picker__body">
+        <aside class="folder-picker__sidebar">
+          <div class="folder-picker__group">
+            <SectionLabel>Favorites</SectionLabel>
             <For each={sidebarLinks()}>
-              {(l) => <SidebarRow label={l.label} active={cwd() === l.path} onClick={() => goTo(l.path)} />}
+              {(link) => (
+                <SidebarRow label={link.label} active={cwd() === link.path} onClick={() => goTo(link.path)} />
+              )}
             </For>
           </div>
           <Show when={recents().length > 0}>
-            <div style={{ display: "flex", "flex-direction": "column", gap: "1px" }}>
-              <SectionLabel>recent</SectionLabel>
+            <div class="folder-picker__group">
+              <SectionLabel>Recent</SectionLabel>
               <For each={recents()}>
-                {(p) => (
+                {(path) => (
                   <SidebarRow
-                    label={p.split("/").filter(Boolean).pop() ?? "/"}
-                    sublabel={p.replace(home() + "/", "~/").replace(home(), "~")}
-                    active={cwd() === p}
-                    onClick={() => goTo(p)}
+                    label={path.split("/").filter(Boolean).pop() ?? "/"}
+                    sublabel={path.replace(home() + "/", "~/").replace(home(), "~")}
+                    active={cwd() === path}
+                    onClick={() => goTo(path)}
                   />
                 )}
               </For>
             </div>
           </Show>
-        </div>
+        </aside>
 
-        {/* Main pane */}
-        <div
-          style={{
-            flex: 1,
-            display: "flex",
-            "flex-direction": "column",
-            gap: "10px",
-            "min-width": 0,
-          }}
-        >
-          {/* Breadcrumbs */}
-          <div
-            style={{
-              display: "flex",
-              "align-items": "center",
-              gap: "6px",
-              padding: "6px 8px",
-              background: "var(--color-bg-subtle)",
-              border: "1px solid var(--color-border)",
-              "border-radius": "var(--evidence-radius-control)",
-              "flex-wrap": "wrap",
-            }}
-          >
+        <section class="folder-picker__browser">
+          <div class="folder-picker__nav">
             <button
+              type="button"
+              class="folder-picker__icon"
+              aria-label="Parent folder"
               onClick={goUp}
-              title="parent folder"
-              style={navBtn(cwd() === "/" || cwd() === "")}
               disabled={cwd() === "/" || cwd() === ""}
             >
-              <IconChevronLeft size={11} strokeWidth={1.5} />
+              <IconChevronLeft size={16} strokeWidth={1.5} />
             </button>
-            <button onClick={() => goTo(home())} title="home" style={navBtn(false)}>
-              <IconHome size={11} strokeWidth={1.5} />
+            <button type="button" class="folder-picker__icon" aria-label="Home" onClick={() => goTo(home())}>
+              <IconHome size={16} strokeWidth={1.5} />
             </button>
-            <span style={{ width: "1px", height: "16px", background: "var(--color-border)" }} />
-            <For each={crumbs()}>
-              {(c, i) => (
-                <>
-                  <Show when={i() > 0}>
-                    <span style={{ color: "var(--color-text-faint)" }}>/</span>
-                  </Show>
-                  <button
-                    onClick={() => goTo(c.path)}
-                    style={{
-                      all: "unset",
-                      cursor: "pointer",
-                      "font-family": FONT_MONO,
-                      "font-size": "11px",
-                      color: i() === crumbs().length - 1 ? "var(--color-text)" : "var(--color-text-muted)",
-                      "font-weight": i() === crumbs().length - 1 ? 600 : 500,
-                      padding: "2px 4px",
-                      "border-radius": "var(--evidence-radius-control)",
-                      transition:
-                        "background var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard)",
-                    }}
-                    onMouseEnter={(el) => {
-                      el.currentTarget.style.background = "var(--color-accent-subtle)"
-                      el.currentTarget.style.color = "var(--color-text)"
-                    }}
-                    onMouseLeave={(el) => {
-                      el.currentTarget.style.background = "transparent"
-                      el.currentTarget.style.color =
-                        i() === crumbs().length - 1 ? "var(--color-text)" : "var(--color-text-muted)"
-                    }}
-                  >
-                    {c.label}
-                  </button>
-                </>
-              )}
-            </For>
-            <span style={{ flex: 1 }} />
-            <button onClick={() => refetch()} title="refresh" style={navBtn(false)}>
-              <IconRefresh size={11} strokeWidth={1.5} />
+            <div class="folder-picker__crumbs">
+              <For each={crumbs()}>
+                {(crumb, index) => (
+                  <>
+                    <Show when={index() > 0}>
+                      <span aria-hidden="true">/</span>
+                    </Show>
+                    <button type="button" title={crumb.path} onClick={() => goTo(crumb.path)}>
+                      {crumb.label}
+                    </button>
+                  </>
+                )}
+              </For>
+            </div>
+            <button type="button" class="folder-picker__icon" aria-label="Refresh" onClick={() => refetch()}>
+              <IconRefresh size={16} strokeWidth={1.5} />
             </button>
           </div>
 
-          {/* Filter */}
-          <div
-            style={{
-              display: "flex",
-              "align-items": "center",
-              gap: "6px",
-              padding: "6px 10px",
-              border: "1px solid var(--color-border)",
-              "border-radius": "var(--evidence-radius-control)",
-              background: "var(--color-surface-solid)",
-            }}
-          >
-            <IconSearch size={11} strokeWidth={1.5} />
-            <input
-              value={filter()}
-              onInput={(e) => setFilter(e.currentTarget.value)}
-              placeholder="filter folders…"
-              autofocus
-              style={{
-                all: "unset",
-                flex: 1,
-                "font-family": FONT_MONO,
-                "font-size": "12px",
-                color: "var(--color-text)",
-              }}
-            />
-            <span
-              class="tab-fig"
-              style={{
-                "font-family": FONT_MONO,
-                "font-size": "10px",
-                color: "var(--color-text-faint)",
-                "letter-spacing": "0.04em",
-              }}
-            >
+          <div class="folder-picker__tools">
+            <label class="folder-picker__search">
+              <IconSearch size={16} strokeWidth={1.5} />
+              <input
+                value={filter()}
+                onInput={(event) => setFilter(event.currentTarget.value)}
+                placeholder="Search folders"
+                autofocus
+              />
+            </label>
+            <label class="folder-picker__path">
+              <IconFolder size={16} strokeWidth={1.5} />
+              <input
+                value={pathInput()}
+                onInput={(event) => setPathInput(event.currentTarget.value)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter") void goToTyped(pathInput())
+                }}
+                placeholder="Enter a path…"
+                spellcheck={false}
+              />
+              <button
+                type="button"
+                class="folder-picker__go"
+                aria-label="Go"
+                onClick={() => void goToTyped(pathInput())}
+                disabled={!pathInput().trim()}
+              >
+                Go
+              </button>
+            </label>
+          </div>
+
+          <div class="folder-picker__list-head">
+            <span>Name</span>
+            <span>
               {filtered().length} {filtered().length === 1 ? "folder" : "folders"}
             </span>
           </div>
 
-          {/* Always-visible "paste a path" — bypass for TCC-blocked dirs
-              (macOS hides ~/Desktop from non-FDA processes, leaving the
-              folder list empty). User pastes any absolute path here and
-              we jump straight there. */}
           <div
-            style={{
-              display: "flex",
-              "align-items": "center",
-              gap: "6px",
-              padding: "6px 10px",
-              border: "1px dashed var(--color-border)",
-              "border-radius": "var(--evidence-radius-control)",
-              background: "var(--color-bg-subtle)",
-            }}
-          >
-            <span
-              style={{
-                "font-family": FONT_MONO,
-                "font-size": "10px",
-                color: "var(--color-text-faint)",
-                "letter-spacing": "0.08em",
-                "text-transform": "uppercase",
-              }}
-            >
-              go to
-            </span>
-            <input
-              value={pathInput()}
-              onInput={(e) => setPathInput(e.currentTarget.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") void goToTyped(pathInput())
-              }}
-              placeholder="/Users/you/Desktop/bs-local · or paste any absolute path"
-              spellcheck={false}
-              style={{
-                all: "unset",
-                flex: 1,
-                "font-family": FONT_MONO,
-                "font-size": "11px",
-                color: "var(--color-text)",
-              }}
-            />
-            <button
-              type="button"
-              onClick={() => void goToTyped(pathInput())}
-              disabled={!pathInput().trim()}
-              style={{
-                all: "unset",
-                cursor: pathInput().trim() ? "pointer" : "not-allowed",
-                padding: "3px 10px",
-                "border-radius": "var(--evidence-radius-control)",
-                background: pathInput().trim() ? "var(--color-surface-solid)" : "transparent",
-                border: "1px solid var(--color-border)",
-                "font-family": FONT_MONO,
-                "font-size": "10px",
-                color: "var(--color-text-muted)",
-                opacity: pathInput().trim() ? 1 : 0.5,
-              }}
-            >
-              go
-            </button>
-          </div>
-
-          {/* Folder list */}
-          <div
-            class="atlas-scroll"
+            class="folder-picker__list atlas-scroll"
             role="listbox"
             aria-label="Folders"
-            ref={(el) => {
-              // Reset scroll position whenever the user navigates so the new
-              // folder always starts at the top instead of carrying the prior
-              // scroll offset (which feels jumpy mid-navigation).
+            ref={(element) => {
               createEffect(() => {
                 cwd()
-                el.scrollTop = 0
+                element.scrollTop = 0
               })
             }}
-            style={{
-              flex: 1,
-              "overflow-y": "auto",
-              border: "1px solid var(--color-border)",
-              "border-radius": "var(--evidence-radius-control)",
-              background: "var(--color-surface-solid)",
-              "min-height": "240px",
-              position: "relative",
-              // Slight desaturation while loading hints at activity without
-              // unmounting the rows — feels much smoother than a full swap.
-              opacity: entries.loading ? 0.55 : 1,
-              transition: "opacity var(--duration-fast) var(--ease-standard)",
-            }}
+            style={{ opacity: entries.loading ? 0.55 : 1 }}
           >
-            {/* Thin indeterminate loading bar across the top while fetching. */}
             <Show when={entries.loading}>
-              <div
-                style={{
-                  position: "absolute",
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  height: "2px",
-                  overflow: "hidden",
-                  "pointer-events": "none",
-                  "z-index": 1,
-                }}
-              >
-                <div
-                  style={{
-                    width: "30%",
-                    height: "100%",
-                    background: "linear-gradient(90deg, transparent, var(--color-accent), transparent)",
-                    animation: "atlas-loading-slide 1.1s ease-in-out infinite",
-                  }}
-                />
-              </div>
+              <div class="folder-picker__loading" />
             </Show>
             <Show
               when={filtered().length > 0}
@@ -472,74 +705,23 @@ export function FolderPicker(props: PickerProps): JSX.Element {
                   <Show
                     when={!error()}
                     fallback={
-                      <div
-                        class="atlas-fade-in"
-                        style={{
-                          padding: "32px 24px",
-                          "text-align": "center",
-                          "font-family": FONT_SANS,
-                          "font-size": "12px",
-                          color: "var(--color-error)",
-                          display: "flex",
-                          "flex-direction": "column",
-                          "align-items": "center",
-                          gap: "10px",
-                        }}
-                      >
-                        <span>couldn't read this folder</span>
-                        <span style={{ color: "var(--color-text-faint)", "max-width": "360px", "line-height": 1.5 }}>
-                          {error()}
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() => void refetch()}
-                          style={{
-                            all: "unset",
-                            cursor: "pointer",
-                            padding: "5px 12px",
-                            "border-radius": "var(--evidence-radius-control)",
-                            border: "1px solid var(--color-border)",
-                            "font-family": FONT_MONO,
-                            "font-size": "11px",
-                            color: "var(--color-text)",
-                          }}
-                        >
-                          retry
+                      <div class="folder-picker__empty folder-picker__empty--error">
+                        <strong>Couldn't read this folder</strong>
+                        <span>{error()}</span>
+                        <button type="button" class="folder-picker__retry" onClick={() => void refetch()}>
+                          Retry
                         </button>
                       </div>
                     }
                   >
-                    <div
-                      class="atlas-fade-in"
-                      style={{
-                        padding: "32px 24px",
-                        "text-align": "center",
-                        "font-family": FONT_SANS,
-                        "font-size": "12px",
-                        color: "var(--color-text-faint)",
-                        display: "flex",
-                        "flex-direction": "column",
-                        gap: "8px",
-                      }}
-                    >
-                      <Show when={(entries() ?? []).length === 0} fallback={<span>nothing matches the filter</span>}>
+                    <div class="folder-picker__empty">
+                      <Show when={(entries() ?? []).length === 0} fallback={<span>Nothing matches the filter.</span>}>
                         <Show
-                          when={
-                            /\/Desktop$|\/Documents$|\/Downloads$/.test(cwd()) ||
-                            cwd().endsWith("/Desktop") ||
-                            cwd().endsWith("/Documents") ||
-                            cwd().endsWith("/Downloads")
-                          }
-                          fallback={<span>this folder is empty · pick it with the button below</span>}
+                          when={/\/(Desktop|Documents|Downloads)$/.test(cwd())}
+                          fallback={<span>This folder is empty. You can still add it as a workspace.</span>}
                         >
-                          <span style={{ color: "var(--color-text)" }}>
-                            macOS is blocking the listing of <code>{cwd().split("/").pop()}</code>
-                          </span>
-                          <span style={{ "max-width": "360px", "line-height": 1.5 }}>
-                            To list this folder we'd need Full Disk Access for the
-                            <code>openscience</code> binary. For now, paste the absolute path of the folder you want
-                            into the <em>go to</em> bar above — OpenScience can still open any path you give it.
-                          </span>
+                          <strong>macOS is blocking this folder listing.</strong>
+                          <span>Enter the absolute path above to select a folder that OpenScience can access.</span>
                         </Show>
                       </Show>
                     </div>
@@ -559,47 +741,32 @@ export function FolderPicker(props: PickerProps): JSX.Element {
               </For>
             </Show>
           </div>
+        </section>
+      </div>
 
-          {/* Footer */}
-          <div
-            style={{
-              display: "flex",
-              "align-items": "center",
-              gap: "8px",
-              "padding-top": "4px",
+      <footer class="folder-picker__footer">
+        <span class="folder-picker__selected">
+          <IconFolder size={16} strokeWidth={1.5} />
+          <span title={selected()}>{selected()}</span>
+        </span>
+        <div class="folder-picker__actions">
+          <button type="button" class="folder-picker__cancel" onClick={cancel}>
+            Cancel
+          </button>
+          <button
+            type="button"
+            class="folder-picker__primary"
+            title="add the selected folder to the workspace list"
+            onClick={async () => {
+              const valid = await validateDirectoryPath(selected())
+              if (valid) pick(valid)
             }}
           >
-            <span
-              style={{
-                "font-family": FONT_MONO,
-                "font-size": "10px",
-                color: "var(--color-text-faint)",
-                flex: 1,
-                overflow: "hidden",
-                "text-overflow": "ellipsis",
-                "white-space": "nowrap",
-              }}
-              title={selected()}
-            >
-              {selected()}
-            </span>
-            <button onClick={cancel} style={cancelBtn()}>
-              cancel
-            </button>
-            <button
-              onClick={async () => {
-                const valid = await validateDirectoryPath(selected())
-                if (valid) pick(valid)
-              }}
-              title="add the current folder to the workspace list"
-              style={primaryBtn()}
-            >
-              <IconArrowRight size={11} strokeWidth={2} />
-              Add workspace
-            </button>
-          </div>
+            <IconArrowRight size={15} strokeWidth={2} />
+            Add workspace
+          </button>
         </div>
-      </div>
+      </footer>
     </Dialog>
   )
 }
@@ -625,35 +792,11 @@ function FolderRow(props: {
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
       title={props.entry.absolute}
-      style={{
-        cursor: "default",
-        display: "flex",
-        "align-items": "center",
-        gap: "10px",
-        padding: "8px 12px",
-        "border-bottom": "1px solid var(--color-border)",
-        background: props.selected
-          ? "var(--evidence-accent-soft, #e7f6ee)"
-          : hover()
-            ? "var(--color-accent-subtle)"
-            : "transparent",
-        transition: "background 160ms ease",
-      }}
+      class="folder-picker__row"
+      classList={{ "folder-picker__row--selected": props.selected }}
     >
-      <IconFolder size={13} strokeWidth={1.5} />
-      <span
-        style={{
-          flex: 1,
-          overflow: "hidden",
-          "text-overflow": "ellipsis",
-          "white-space": "nowrap",
-          "font-family": FONT_MONO,
-          "font-size": "12px",
-          color: "var(--color-text)",
-        }}
-      >
-        {props.entry.name}
-      </span>
+      <IconFolder size={16} strokeWidth={1.5} />
+      <span class="folder-picker__row-name">{props.entry.name}</span>
       <Show when={props.selected}>
         <IconCheckCircle size={16} strokeWidth={1.5} style={{ color: "var(--evidence-primary, #21965f)" }} />
       </Show>
@@ -664,20 +807,10 @@ function FolderRow(props: {
           event.stopPropagation()
           props.onDrill()
         }}
-        style={{
-          all: "unset",
-          cursor: "pointer",
-          display: "inline-flex",
-          "align-items": "center",
-          "justify-content": "center",
-          width: "24px",
-          height: "24px",
-          "border-radius": "var(--evidence-radius-control)",
-          opacity: hover() ? 1 : 0.5,
-          transition: "opacity 160ms ease",
-        }}
+        class="folder-picker__disclosure"
+        style={{ opacity: hover() ? 1 : 0.55 }}
       >
-        <IconChevronRight size={11} strokeWidth={1.5} />
+        <IconChevronRight size={14} strokeWidth={1.5} />
       </button>
     </div>
   )
@@ -685,18 +818,7 @@ function FolderRow(props: {
 
 function SectionLabel(props: { children: JSX.Element }): JSX.Element {
   return (
-    <div
-      style={{
-        "font-family": FONT_MONO,
-        "font-size": "10px",
-        color: "var(--color-text-faint)",
-        "letter-spacing": "0.08em",
-        "text-transform": "uppercase",
-        padding: "4px 6px",
-      }}
-    >
-      {props.children}
-    </div>
+    <div class="folder-picker__section">{props.children}</div>
   )
 }
 
@@ -709,104 +831,16 @@ function SidebarRow(props: { label: string; sublabel?: string; active: boolean; 
       onKeyDown={(e) => {
         if (e.key === "Enter") props.onClick()
       }}
-      style={{
-        cursor: "pointer",
-        display: "flex",
-        "align-items": "center",
-        gap: "8px",
-        padding: "5px 8px",
-        "border-radius": "var(--evidence-radius-control)",
-        background: props.active ? "var(--color-bg-elevated)" : "transparent",
-        border: props.active ? "1px solid var(--color-border-strong)" : "1px solid transparent",
-        transition: "background 160ms ease, border-color 160ms ease, transform 160ms ease",
-      }}
-      onMouseEnter={(el) => {
-        if (!props.active) el.currentTarget.style.background = "var(--color-accent-subtle)"
-        el.currentTarget.style.transform = "translateX(2px)"
-      }}
-      onMouseLeave={(el) => {
-        if (!props.active) el.currentTarget.style.background = "transparent"
-        el.currentTarget.style.transform = "translateX(0)"
-      }}
+      class="folder-picker__side-row"
+      classList={{ "folder-picker__side-row--active": props.active }}
     >
-      <IconFolder size={11} strokeWidth={1.5} />
-      <div style={{ flex: 1, "min-width": 0, display: "flex", "flex-direction": "column" }}>
-        <span
-          style={{
-            "font-family": FONT_MONO,
-            "font-size": "11px",
-            color: "var(--color-text)",
-            "font-weight": props.active ? 600 : 500,
-            overflow: "hidden",
-            "text-overflow": "ellipsis",
-            "white-space": "nowrap",
-          }}
-        >
-          {props.label}
-        </span>
+      <IconFolder size={16} strokeWidth={1.5} />
+      <div class="folder-picker__side-copy">
+        <span class="folder-picker__side-label">{props.label}</span>
         <Show when={props.sublabel}>
-          <span
-            style={{
-              "font-family": FONT_MONO,
-              "font-size": "10px",
-              color: "var(--color-text-faint)",
-              overflow: "hidden",
-              "text-overflow": "ellipsis",
-              "white-space": "nowrap",
-            }}
-          >
-            {props.sublabel}
-          </span>
+          <span class="folder-picker__side-path">{props.sublabel}</span>
         </Show>
       </div>
     </div>
   )
-}
-
-function navBtn(disabled: boolean): JSX.CSSProperties {
-  return {
-    all: "unset",
-    cursor: disabled ? "not-allowed" : "pointer",
-    display: "inline-flex",
-    "align-items": "center",
-    "justify-content": "center",
-    width: "22px",
-    height: "22px",
-    "border-radius": "var(--evidence-radius-control)",
-    color: "var(--color-text-muted)",
-    background: "var(--color-surface-solid)",
-    border: "1px solid var(--color-border)",
-    opacity: disabled ? 0.4 : 1,
-  } as JSX.CSSProperties
-}
-
-function cancelBtn(): JSX.CSSProperties {
-  return {
-    all: "unset",
-    cursor: "pointer",
-    padding: "6px 12px",
-    "border-radius": "var(--evidence-radius-control)",
-    border: "1px solid var(--color-border)",
-    background: "var(--color-surface-solid)",
-    "font-family": FONT_MONO,
-    "font-size": "11px",
-    color: "var(--color-text-muted)",
-  } as JSX.CSSProperties
-}
-
-function primaryBtn(): JSX.CSSProperties {
-  return {
-    all: "unset",
-    cursor: "pointer",
-    padding: "6px 14px",
-    "border-radius": "var(--evidence-radius-control)",
-    background: "var(--color-accent)",
-    color: "var(--color-on-accent)",
-    "font-family": FONT_MONO,
-    "font-size": "11px",
-    "font-weight": 500,
-    display: "inline-flex",
-    "align-items": "center",
-    gap: "6px",
-  } as JSX.CSSProperties
 }

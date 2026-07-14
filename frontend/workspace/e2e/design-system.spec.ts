@@ -193,7 +193,30 @@ test("representative popups share the PandaScience surface and action hierarchy"
   await page.getByRole("button", { name: "New project" }).click()
   let dialog = page.locator('[data-component="dialog"] [data-slot="dialog-content"]')
   await expectPopupSurface(dialog)
-  await expect(dialog.getByRole("button", { name: "open this folder", exact: true })).toHaveCSS("border-radius", "8px")
+  await expect(dialog.locator('[data-slot="dialog-title"]')).toHaveText("Add workspace")
+  await expect(
+    dialog.getByText(
+      "Choose a folder to add to your project registry. You can open it from the workspace list afterward.",
+      { exact: true },
+    ),
+  ).toBeVisible()
+  await expect(dialog.getByRole("button", { name: "Add workspace", exact: true })).toHaveCSS("border-radius", "8px")
+  await expect(dialog.getByPlaceholder("Search folders")).toBeVisible()
+  await expect(dialog.getByPlaceholder("Enter a path…")).toBeVisible()
+  const picker = await dialog.evaluate((element) => {
+    const body = element.querySelector<HTMLElement>(".folder-picker__body")!
+    const sidebar = element.querySelector<HTMLElement>(".folder-picker__sidebar")!
+    return {
+      width: getComputedStyle(element).width,
+      bodyDisplay: getComputedStyle(body).display,
+      sidebarWidth: getComputedStyle(sidebar).width,
+    }
+  })
+  expect(picker).toMatchObject({
+    width: "960px",
+    bodyDisplay: "grid",
+    sidebarWidth: "210px",
+  })
   await page.keyboard.press("Escape")
 
   await page.getByRole("button", { name: /localhost|127\.0\.0\.1/ }).click()

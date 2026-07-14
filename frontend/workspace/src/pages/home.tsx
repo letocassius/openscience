@@ -163,9 +163,7 @@ export default function Home(): JSX.Element {
     // Browser: always use the in-app Finder-style FolderPicker for visual
     // consistency with the rest of the UI. The OS-native browser picker
     // (showDirectoryPicker / osascript dialog) is intentionally bypassed.
-    // `lite` mode skips the modal backdrop and body scroll lock so the
-    // picker glides in over the page instead of triggering a reflow.
-    dialog.show(() => <FolderPicker onSelect={resolveResult} />, { onClose: () => resolveResult(null), lite: true })
+    dialog.show(() => <FolderPicker onSelect={resolveResult} />, { onClose: () => resolveResult(null) })
   }
 
   useGlobalKeys({ onNew: () => void chooseProject() })
