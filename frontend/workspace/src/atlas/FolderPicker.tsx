@@ -12,7 +12,8 @@ import {
   IconSearch,
   IconRefresh,
   IconHome,
-  IconCheckCircle,
+  IconFile,
+  IconDownload,
 } from "@/atlas/shared/Icon"
 
 interface FolderEntry {
@@ -255,7 +256,7 @@ export function FolderPicker(props: PickerProps): JSX.Element {
         }
         .folder-picker__side-row--active {
           border-color: color-mix(in srgb, var(--evidence-primary, #21965f) 14%, transparent);
-          background: var(--evidence-accent-soft, #e7f6ee);
+          background: var(--evidence-selected, #e7f6ee);
         }
         .folder-picker__side-copy {
           display: flex;
@@ -425,7 +426,7 @@ export function FolderPicker(props: PickerProps): JSX.Element {
         }
         .folder-picker__row--selected,
         .folder-picker__row--selected:hover {
-          background: var(--evidence-accent-soft, #e7f6ee);
+          background: var(--evidence-selected, #e7f6ee);
         }
         .folder-picker__row-name {
           min-width: 0;
@@ -433,6 +434,16 @@ export function FolderPicker(props: PickerProps): JSX.Element {
           overflow: hidden;
           text-overflow: ellipsis;
           white-space: nowrap;
+        }
+        .folder-picker__check {
+          display: grid;
+          width: 20px;
+          height: 20px;
+          flex: 0 0 20px;
+          place-items: center;
+          border-radius: 50%;
+          color: white;
+          background: var(--evidence-primary, #21965f);
         }
         .folder-picker__disclosure {
           width: 28px;
@@ -589,7 +600,22 @@ export function FolderPicker(props: PickerProps): JSX.Element {
             <SectionLabel>Favorites</SectionLabel>
             <For each={sidebarLinks()}>
               {(link) => (
-                <SidebarRow label={link.label} active={cwd() === link.path} onClick={() => goTo(link.path)} />
+                <SidebarRow
+                  label={link.label}
+                  icon={
+                    link.key === "home" ? (
+                      <IconHome size={16} strokeWidth={1.5} />
+                    ) : link.key === "docs" ? (
+                      <IconFile size={16} strokeWidth={1.5} />
+                    ) : link.key === "dl" ? (
+                      <IconDownload size={16} strokeWidth={1.5} />
+                    ) : (
+                      <IconFolder size={16} strokeWidth={1.5} />
+                    )
+                  }
+                  active={cwd() === link.path}
+                  onClick={() => goTo(link.path)}
+                />
               )}
             </For>
           </div>
@@ -798,7 +824,11 @@ function FolderRow(props: {
       <IconFolder size={16} strokeWidth={1.5} />
       <span class="folder-picker__row-name">{props.entry.name}</span>
       <Show when={props.selected}>
-        <IconCheckCircle size={16} strokeWidth={1.5} style={{ color: "var(--evidence-primary, #21965f)" }} />
+        <span class="folder-picker__check" aria-hidden="true">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+            <path d="M2.25 6.2 4.65 8.5 9.75 3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </span>
       </Show>
       <button
         type="button"
@@ -822,7 +852,13 @@ function SectionLabel(props: { children: JSX.Element }): JSX.Element {
   )
 }
 
-function SidebarRow(props: { label: string; sublabel?: string; active: boolean; onClick: () => void }): JSX.Element {
+function SidebarRow(props: {
+  label: string
+  sublabel?: string
+  icon?: JSX.Element
+  active: boolean
+  onClick: () => void
+}): JSX.Element {
   return (
     <div
       role="button"
@@ -834,7 +870,7 @@ function SidebarRow(props: { label: string; sublabel?: string; active: boolean; 
       class="folder-picker__side-row"
       classList={{ "folder-picker__side-row--active": props.active }}
     >
-      <IconFolder size={16} strokeWidth={1.5} />
+      {props.icon ?? <IconFolder size={16} strokeWidth={1.5} />}
       <div class="folder-picker__side-copy">
         <span class="folder-picker__side-label">{props.label}</span>
         <Show when={props.sublabel}>

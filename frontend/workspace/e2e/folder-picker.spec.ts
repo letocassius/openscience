@@ -32,6 +32,10 @@ test("folder rows select separately from disclosure navigation", async ({ page, 
   await expect(picker).toBeVisible()
   await expect(page).toHaveURL("/")
   await expect(row).toHaveAttribute("aria-selected", "true")
+  await expect(row).toHaveCSS("background-color", "rgb(231, 246, 238)")
+  const check = row.locator(".folder-picker__check")
+  await expect(check).toBeVisible()
+  await expect(check).toHaveCSS("background-color", "rgb(33, 150, 95)")
   await expect(picker.getByText(`${directory}/frontend`, { exact: true })).toBeVisible()
 
   await row.getByRole("button", { name: "Open frontend", exact: true }).click()

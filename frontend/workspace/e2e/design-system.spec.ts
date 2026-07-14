@@ -208,12 +208,14 @@ test("representative popups share the PandaScience surface and action hierarchy"
     const sidebar = element.querySelector<HTMLElement>(".folder-picker__sidebar")!
     return {
       width: getComputedStyle(element).width,
+      height: getComputedStyle(element).height,
       bodyDisplay: getComputedStyle(body).display,
       sidebarWidth: getComputedStyle(sidebar).width,
     }
   })
   expect(picker).toMatchObject({
     width: "960px",
+    height: "672px",
     bodyDisplay: "grid",
     sidebarWidth: "210px",
   })
