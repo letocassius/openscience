@@ -23,14 +23,7 @@ import { CommandPalette } from "@/atlas/CommandPalette"
 import { HelpOverlay } from "@/atlas/HelpOverlay"
 import { projectPrefs } from "@/atlas/store/projectPrefs"
 import { IconStar, IconStarFilled, IconTrash } from "@/atlas/shared/Icon"
-import {
-  IconArrowRight,
-  IconClock,
-  IconFolder,
-  IconPlus,
-  IconSearch,
-  IconSettings,
-} from "@/atlas/shared/Icon"
+import { IconArrowRight, IconClock, IconFolder, IconPlus, IconSearch, IconSettings } from "@/atlas/shared/Icon"
 import { FONT_CODE, FONT_MONO, FONT_SANS, FONT_SERIF } from "@/styles/tokens"
 
 /** 26px bordered icon button shared by the hover action clusters in grid cards and list rows. */
