@@ -1,11 +1,9 @@
 name: E2E
 
 on:
+  # Manual only: keep the browser-heavy suite available without sending
+  # recurring failure notifications from unattended nightly runs.
   workflow_dispatch:
-  # Nightly rather than per-PR: the suite is long and browser-heavy. Promote
-  # to a PR trigger once it has a green track record.
-  schedule:
-    - cron: "17 3 * * *"
 
 permissions:
   contents: read
